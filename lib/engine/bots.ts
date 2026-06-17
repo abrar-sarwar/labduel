@@ -2,10 +2,11 @@
 // be run and watched solo (no need for a roomful of phones). Bots auto-answer
 // each round so scores, debriefs, damage and the economy all move realistically.
 
-import type { GameState, Player } from "../shared/types";
+import type { GameState, Player, Team } from "../shared/types";
 import type { ScenarioPack } from "../shared/content-types";
 import type { Rng } from "./rng";
 import { applySubmission, tasksForPlayer, roundContentFor } from "./round";
+import { upgradesForTeam } from "../content/upgrades";
 
 const BOT_NAMES = [
   "Ada", "Linus", "Grace", "Turing", "Hopper", "Nova", "Echo", "Pixel",
@@ -87,4 +88,28 @@ export function botsAutoSubmit(
     }
   }
   return next;
+}
+
+/**
+ * Every bot casts 1-2 upvotes for their team's upgrades, so the shop has lively
+ * vote tallies for the leader to read. Safe to call once when the shop opens.
+ */
+export function botsAutoVote(state: GameState, now: number, rng: Rng): GameState {
+  if (state.phase !== "shop") return state;
+  const shopVotes: Record<Team, Record<string, string[]>> = {
+    red: { ...state.shopVotes.red },
+    blue: { ...state.shopVotes.blue },
+  };
+
+  for (const bot of state.players) {
+    if (!bot.isBot || bot.status !== "active" || !bot.team) continue;
+    const catalog = upgradesForTeam(bot.team);
+    const picks = 1 + Math.floor(rng() * 2); // 1 or 2
+    for (let i = 0; i < picks; i++) {
+      const up = catalog[Math.floor(rng() * catalog.length)];
+      const list = shopVotes[bot.team][up.id] ?? [];
+      if (!list.includes(bot.id)) shopVotes[bot.team][up.id] = [...list, bot.id];
+    }
+  }
+  return { ...state, shopVotes, rev: state.rev + 1, updatedAt: now };
 }
