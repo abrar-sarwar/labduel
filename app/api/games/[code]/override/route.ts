@@ -1,7 +1,7 @@
 import { overrideSchema } from "@/lib/shared/schemas";
 import { reassignPlayer, assignWaiting } from "@/lib/engine";
 import { registry } from "@/lib/server/registry";
-import { getActor } from "@/lib/server/auth";
+import { isHost } from "@/lib/server/auth";
 import { ok, fail, parseBody, errorResponse } from "@/lib/server/http";
 
 // Host override console: manual team/squad/role reassignment and late-joiner
@@ -13,8 +13,7 @@ export async function POST(
   const { code } = await params;
   if (!registry.has(code)) return fail(404, "game_not_found", "No game with that code");
 
-  const actor = await getActor(code);
-  if (actor.role !== "host")
+  if (!(await isHost(code)))
     return fail(403, "forbidden", "Only the host can override assignments");
 
   const parsed = await parseBody(req, overrideSchema);

@@ -3,7 +3,7 @@
 
 export type Rng = () => number;
 
-/** Mulberry32 — small, fast, seedable PRNG. Used in tests. */
+/** Mulberry32, small, fast, seedable PRNG. Used in tests. */
 export function seededRng(seed: number): Rng {
   let a = seed >>> 0;
   return () => {
@@ -15,7 +15,7 @@ export function seededRng(seed: number): Rng {
   };
 }
 
-/** Fisher–Yates shuffle, pure (returns a new array). */
+/** Fisher-Yates shuffle, pure (returns a new array). */
 export function shuffle<T>(items: readonly T[], rng: Rng): T[] {
   const out = items.slice();
   for (let i = out.length - 1; i > 0; i--) {

@@ -35,6 +35,27 @@ export async function getActor(code: string): Promise<Actor> {
   return { role: "none" };
 }
 
+// Per-route identity checks. These are independent, so a single browser can hold
+// both a host session and a player session for the same room (handy for solo
+// testing and demos): host routes check the host cookie, player routes check the
+// player cookie, and neither blocks the other.
+
+export async function isHost(code: string): Promise<boolean> {
+  const game = registry.getGame(code);
+  if (!game) return false;
+  const store = await cookies();
+  return store.get(hostCookie(code))?.value === game.hostToken;
+}
+
+export async function getPlayerId(code: string): Promise<string | null> {
+  const game = registry.getGame(code);
+  if (!game) return null;
+  const store = await cookies();
+  const ptok = store.get(playerCookie(code))?.value;
+  if (!ptok) return null;
+  return game.players.find((p) => p.token === ptok)?.id ?? null;
+}
+
 export async function setHostCookie(code: string, token: string): Promise<void> {
   const store = await cookies();
   store.set(hostCookie(code), token, {

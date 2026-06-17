@@ -176,7 +176,7 @@ function ActiveRow({
       <div className="min-w-0">
         <span className="font-display text-sm font-bold">{player.name}</span>
         <span className="ml-2 text-xs text-paper/50">
-          <span className={c.text}>{squad?.name ?? "—"}</span>
+          <span className={c.text}>{squad?.name ?? "-"}</span>
           {role && ` · ${role.name}`}
         </span>
       </div>

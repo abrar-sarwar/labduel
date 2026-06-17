@@ -1,7 +1,7 @@
-# LabDuel — Slice 1 Design ("Playable Skeleton")
+# LabDuel, Slice 1 Design ("Playable Skeleton")
 
 **Date:** 2026-06-17
-**Status:** Approved — building.
+**Status:** Approved, building.
 
 ## Product context
 
@@ -11,7 +11,7 @@ meets tabletop cyber incident response," with competitive, Clash-Royale-style
 energy. Red strikes, Blue defends; every round is action and reaction. First
 audience: a cybersecurity club running it live with 50+ students.
 
-The platform has three pillars: **LabDuel Live** (host-led classroom mode — the
+The platform has three pillars: **LabDuel Live** (host-led classroom mode, the
 MVP), **LabDuel Quest** (solo turn-based cyber RPG, later), and **LabDuel Studio**
 (creator/instructor tools for authoring scenarios, quests, and packs, later). Only
 LabDuel Live is in scope for Slice 1; the architecture, naming, and structured,
@@ -29,13 +29,13 @@ mode, all 9 rounds, characters) layers on later without architectural rework.
 - **Next.js (App Router) + TypeScript**, **Tailwind + shadcn/ui**, deploy on Vercel.
 - **Realtime + persistence behind adapter interfaces.** Slice 1 ships an
   in-process implementation (in-memory authoritative store + SSE broadcast) so the
-  app runs locally with zero external accounts — ideal for a club laptop / dev. A
+  app runs locally with zero external accounts, ideal for a club laptop / dev. A
   **Supabase adapter** (Postgres source-of-truth + Supabase Realtime) is the
   documented production swap and changes no engine or UI code.
 - **Zod** validates every inbound action. **Vitest** for the engine. **Playwright**
   for the host+players live flow.
 - **Game engine** = a pure, server-only TypeScript module. The browser only renders
-  state and sends actions — it never computes scores, roles, initiative, or winners.
+  state and sends actions, it never computes scores, roles, initiative, or winners.
 
 ## Authority & data-flow model (non-negotiable)
 
@@ -47,7 +47,7 @@ engine → persist new state → broadcast the **public** state slice.
   public mission brief, Red/Blue scores, squad standings, debrief text.
 - **Private fetch** (per player, authenticated by session token): that player's own
   task assignment and submission state. Nothing player-specific rides the public
-  channel. This is the exact seam the future Insider Threat mode plugs into — it
+  channel. This is the exact seam the future Insider Threat mode plugs into, it
   changes nothing about the architecture.
 - **Identity = per-player session token** (httpOnly cookie), never the display name.
   Refresh / reconnect restores team, squad, role, and submission state.
@@ -64,26 +64,26 @@ engine → persist new state → broadcast the **public** state slice.
 - Timers = a **server-stored deadline timestamp**. Clients count down to it; the
   server rejects submissions past it. No always-on timer process required.
 
-## Round mechanic — simultaneous + initiative bonus
+## Round mechanic, simultaneous + initiative bonus
 
 Both sides work their squad tasks concurrently (no idle students). The coin-flip
 winner gets an initiative score multiplier for that round. The action→reaction
 story is told through shared scenario state and the debrief
-("Blue deployed MFA → Red's credential-stuffing was blunted — here's why").
+("Blue deployed MFA → Red's credential-stuffing was blunted, here's why").
 
 ## Squad collaboration (no single captain)
 
-- Server auto-balances players into Red/Blue, then into **squads of ~4–6**, and
+- Server auto-balances players into Red/Blue, then into **squads of ~4-6**, and
   assigns each player a role.
 - Each round, a squad gets one **squad mission** = a few **connected sub-tasks**,
-  distributed by role. Example — Blue squad, Round 1 (phishing): Defender classifies
+  distributed by role. Example, Blue squad, Round 1 (phishing): Defender classifies
   the phish · Analyst matches an indicator to a category · Engineer fills the blank
   in the report/detection step · Responder picks the correct first action.
 - **Squad score = points from correct sub-tasks; squad succeeds past a correctness
   threshold. Squad scores roll up into the team score.** Small squads simply have
   fewer sub-tasks; a missing role never penalizes.
 - Task input types in Slice 1: **classify / multiple-choice**, **match**, and
-  **fill-in-from-options** — all simulated, all safe (no copy-pasteable exploit
+  **fill-in-from-options**, all simulated, all safe (no copy-pasteable exploit
   content). Red content teaches how attacks work conceptually; Blue teaches
   detection, prevention, response, and tradeoffs.
 
@@ -109,7 +109,7 @@ errors for invalid/already-started room codes; late joiners after start land in 
 holding state and are auto-placed at the next round boundary (host sees them). Full
 manual late-joiner override UI is deferred.
 
-## Content — full 9-round ladder (BUILT — Slice 1.3, drafted here, user reviews)
+## Content, full 9-round ladder (BUILT, Slice 1.3, drafted here, user reviews)
 
 The complete learning ladder is authored in `lib/content/pack-01.ts`:
 
@@ -121,13 +121,13 @@ response chain).
 
 Each round has: public/red/blue briefs, a 4-role Blue mission and 4-role Red
 mission (classify / fill-blank / match sub-tasks), a per-round Insider objective,
-scoring, and a debrief. All content is abstract, fictionalized, and safe — no
+scoring, and a debrief. All content is abstract, fictionalized, and safe, no
 copy-pasteable exploit instructions. A `pack.test.ts` suite enforces structural
 integrity (unique task ids, valid answers/options, full role coverage, insider
-objective present). The host can run any 1–9 of them; the create screen defaults
+objective present). The host can run any 1-9 of them; the create screen defaults
 to the full 9.
 
-## Insider Threat + Checkmate Protocol (BUILT — Slice 1.1)
+## Insider Threat + Checkmate Protocol (BUILT, Slice 1.1)
 
 Host toggle (create-time or in-lobby). When on and there are **≥3 Blue players**,
 the server secretly elevates **one** Blue player to Insider at start; with fewer
@@ -148,36 +148,36 @@ with a **Do it / Lay low** choice.
 - That the *mode* is enabled is public (like knowing there's an impostor); only the
   identity is secret.
 
-## Shop / economy phase (BUILT — Slice 1.2)
+## Shop / economy phase (BUILT, Slice 1.2)
 
 A **Shop phase** runs between rounds (`Debrief → Shop → next Briefing`; none after
 the last round) with a discussion timer. Each side has a **shared team budget**.
 
 - **Income** each shop: a base amount minus any insurance premium, plus a bonus for
   the side that won the round just played.
-- **Company Damage** is a single 0–100 breach meter: it rises when Red wins a round,
+- **Company Damage** is a single 0-100 breach meter: it rises when Red wins a round,
   recovers a little when Blue wins. At **100% it's a full breach → Red wins** (a
   second comeback condition alongside Checkmate).
 - **Upgrades** (catalog in `lib/content/upgrades.ts`, safe/conceptual): bounded
-  effects — a one-round team score bonus, damage reduction (Blue backups), offensive
+  effects, a one-round team score bonus, damage reduction (Blue backups), offensive
   breach pressure (Red), and **Insurance/War Chest** (money now, but a permanent
-  **premium** that lowers future income — a comeback lever that doesn't erase
+  **premium** that lowers future income, a comeback lever that doesn't erase
   consequences).
 - **Host enters purchases** (MVP). Players get a read-only shop to discuss; team
   voting is deferred. Buying is host-authorized server-side and only valid during
   the Shop phase. Budgets, owned upgrades, and company damage are all public.
 
-## Host override console (BUILT — Slice 1.4)
+## Host override console (BUILT, Slice 1.4)
 
 The host can fix messy real-room situations without restarting:
 
 - **Reassign** any active player's team / squad / role. The engine reseats them
   (removed from the old squad, added to exactly one new squad), validates the role
-  belongs to the team and the squad is on that team, and — if the player was the
-  Insider and is moved off Blue — dissolves the secret role.
+  belongs to the team and the squad is on that team, and, if the player was the
+  Insider and is moved off Blue, dissolves the secret role.
 - **Place late joiners** (the `waiting` state): pick team, squad, and role, and
   choose **Join now** (enter the current round) or **next round** (default while a
-  round is live — they're activated and seated automatically at the next
+  round is live, they're activated and seated automatically at the next
   `beginRound`).
 - Host-only (`/api/games/[code]/override`), surfaced in the host dashboard as a
   "Roster & overrides" panel: late joiners always surface with an alert badge; the
@@ -192,7 +192,7 @@ LabDuel Studio · platform/accounts layer.
 
 ## Visual identity
 
-Playful-tactical: clean, energetic, a little dramatic — not cyberpunk-terminal, not
+Playful-tactical: clean, energetic, a little dramatic, not cyberpunk-terminal, not
 childish. Strong Red/Blue team identity carried by icons, shapes, and labels (not
 color alone), with neutral bases and reserved accents for money/warnings/damage
 later. Satisfying motion on coin flip, score changes, and round transitions; stable
@@ -201,10 +201,10 @@ and legible for the projector.
 
 ## Module boundaries
 
-- `lib/engine/` — pure functions: assignment, round setup, coin flip (seeded),
+- `lib/engine/`, pure functions: assignment, round setup, coin flip (seeded),
   validation, scoring, phase transitions, winner calc. No I/O. Heavily unit-tested.
-- `lib/content/` — scenario packs (data only), separate from the engine.
-- `lib/server/` — `GameStore` + `EventBus` interfaces and the in-memory adapters;
+- `lib/content/`, scenario packs (data only), separate from the engine.
+- `lib/server/`, `GameStore` + `EventBus` interfaces and the in-memory adapters;
   action handlers (authorize → engine → persist → broadcast).
-- `lib/shared/` — types + Zod action schemas shared by client and server.
-- `app/` — routes and views (render state, send actions).
+- `lib/shared/`, types + Zod action schemas shared by client and server.
+- `app/`, routes and views (render state, send actions).

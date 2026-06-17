@@ -93,7 +93,7 @@ describe("assignWaiting (late joiners)", () => {
     state = assignWaiting(state, "late", { team: "blue" }, 2400);
     const late = state.players.find((p) => p.id === "late")!;
     expect(late.team).toBe("blue");
-    expect(late.status).toBe("waiting"); // deferred — not seated this round
+    expect(late.status).toBe("waiting"); // deferred, not seated this round
     expect(squadOf(state, "late")).toBeUndefined();
   });
 

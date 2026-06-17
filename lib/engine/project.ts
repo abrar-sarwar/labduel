@@ -204,7 +204,7 @@ export function toPlayerView(
     };
   }
 
-  // Insider payload — ONLY ever built for the insider's own view.
+  // Insider payload, ONLY ever built for the insider's own view.
   let insider: InsiderView | null = null;
   if (player.insider && state.insiderPlayerId === player.id) {
     const cm = checkmateState(state);

@@ -115,7 +115,7 @@ export default function HostPage() {
         {pub.phase === "lobby" ? (
           <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
             <div className="panel flex flex-col items-center justify-center p-8 text-center">
-              <p className="eyebrow">Room code — go to /join</p>
+              <p className="eyebrow">Room code, go to /join</p>
               <p className="my-3 font-display text-7xl font-black tracking-[0.15em] text-gold">
                 {code}
               </p>
@@ -226,7 +226,7 @@ export default function HostPage() {
                         <p className="eyebrow">Strategy &amp; economy</p>
                         <h2 className="font-display text-2xl font-black">Spend between rounds</h2>
                         <p className="mt-1 text-sm text-paper/60">
-                          Each side discusses out loud — you enter their picks.
+                          Each side discusses out loud, you enter their picks.
                         </p>
                       </div>
                       <div className="w-32 shrink-0">

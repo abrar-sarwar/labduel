@@ -163,7 +163,7 @@ export function TaskCard({
         </button>
       )}
       {locked && !revealed && (
-        <p className="mt-4 text-center text-sm text-paper/50">Round locked — awaiting results…</p>
+        <p className="mt-4 text-center text-sm text-paper/50">Round locked, awaiting results…</p>
       )}
     </div>
   );

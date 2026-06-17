@@ -1,4 +1,4 @@
-// Host override console — manual team/squad/role reassignment and late-joiner
+// Host override console, manual team/squad/role reassignment and late-joiner
 // placement, so a host can fix messy real-room situations without restarting.
 // All pure; host authorization is enforced at the route layer.
 
@@ -73,7 +73,7 @@ export function reassignPlayer(
   }
   validateRole(roleKey, team);
 
-  // The insider must be Blue — moving them to Red dissolves the secret role.
+  // The insider must be Blue, moving them to Red dissolves the secret role.
   const losesInsider = player.insider && team !== "blue";
 
   const players = state.players.map((p) =>

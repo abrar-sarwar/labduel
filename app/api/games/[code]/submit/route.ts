@@ -1,7 +1,7 @@
 import { submitTaskSchema } from "@/lib/shared/schemas";
 import { applySubmission } from "@/lib/engine";
 import { registry } from "@/lib/server/registry";
-import { getActor } from "@/lib/server/auth";
+import { getPlayerId } from "@/lib/server/auth";
 import { ok, fail, parseBody, errorResponse } from "@/lib/server/http";
 
 export async function POST(
@@ -11,8 +11,8 @@ export async function POST(
   const { code } = await params;
   if (!registry.has(code)) return fail(404, "game_not_found", "No game with that code");
 
-  const actor = await getActor(code);
-  if (actor.role !== "player")
+  const playerId = await getPlayerId(code);
+  if (!playerId)
     return fail(403, "forbidden", "Only a player in this game can submit");
 
   const parsed = await parseBody(req, submitTaskSchema);
@@ -24,7 +24,7 @@ export async function POST(
       applySubmission(
         state,
         pack,
-        actor.playerId,
+        playerId,
         parsed.data.taskId,
         parsed.data.answer,
         Date.now()

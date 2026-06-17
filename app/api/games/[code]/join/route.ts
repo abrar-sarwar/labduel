@@ -3,7 +3,7 @@ import { z } from "zod";
 import { addPlayer } from "@/lib/engine";
 import { registry } from "@/lib/server/registry";
 import { makeToken, makeId } from "@/lib/server/ids";
-import { setPlayerCookie, getActor } from "@/lib/server/auth";
+import { setPlayerCookie, getPlayerId } from "@/lib/server/auth";
 import { ok, fail, parseBody, errorResponse } from "@/lib/server/http";
 
 const bodySchema = z.object({ name: displayNameSchema });
@@ -19,13 +19,11 @@ export async function POST(
   if ("response" in parsed) return parsed.response;
 
   try {
-    // If this browser already holds a valid player session, treat as reconnect.
-    const actor = await getActor(code);
-    if (actor.role === "player") {
-      return ok({ playerId: actor.playerId, reconnected: true });
-    }
-    if (actor.role === "host") {
-      return fail(409, "is_host", "You are the host of this game");
+    // Already holding a player session? Treat it as a reconnect. A host can also
+    // join as a player from the same browser, which makes solo testing painless.
+    const existing = await getPlayerId(code);
+    if (existing) {
+      return ok({ playerId: existing, reconnected: true });
     }
 
     const token = makeToken();

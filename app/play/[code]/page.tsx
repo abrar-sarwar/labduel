@@ -26,7 +26,7 @@ import { Button } from "@/components/ui";
 export default function PlayPage() {
   const { code } = useParams<{ code: string }>();
   const { pub, status } = useGameStream(code);
-  const { role, view, refetch } = usePlayerView(code, pub?.rev);
+  const { role, view, refetch } = usePlayerView(code, pub?.rev, true);
 
   if (!pub) {
     return (
@@ -89,7 +89,7 @@ export default function PlayPage() {
         )}
 
         {waiting && (
-          <CenterMessage title="You're in — next round">
+          <CenterMessage title="You're in, next round">
             <p>The game is mid-round. You&apos;ll be placed on a squad when the next round begins.</p>
           </CenterMessage>
         )}
@@ -113,7 +113,7 @@ export default function PlayPage() {
             </p>
             <RoleCard role={you.role} team={team} />
             <p className="mt-4 text-center text-sm text-paper/60">
-              Squad <span className={c.text}>{view?.squad?.name}</span> — your tasks
+              Squad <span className={c.text}>{view?.squad?.name}</span>, your tasks
               connect with your teammates&apos;. Get ready.
             </p>
             {view?.you.isInsider && (
@@ -213,7 +213,7 @@ export default function PlayPage() {
               <p className="eyebrow">Strategy phase</p>
               <h2 className="mt-1 font-display text-2xl font-black">Talk it out with your team</h2>
               <p className="mt-1 text-sm text-paper/60">
-                Decide what to buy together — your host enters the call. Countdown:
+                Decide what to buy together, your host enters the call. Countdown:
               </p>
               <div className="mx-auto mt-3 max-w-[180px]">
                 <Countdown deadline={pub.phaseDeadline} totalSeconds={pub.settings.shopSeconds} />

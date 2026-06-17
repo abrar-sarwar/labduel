@@ -31,10 +31,10 @@ export default function ProjectorPage() {
       <div className="mx-auto max-w-6xl px-8 py-10">
         {!pub && <p className="text-center text-2xl text-paper/50">Connecting…</p>}
 
-        {/* LOBBY — giant code */}
+        {/* LOBBY, giant code */}
         {pub?.phase === "lobby" && (
           <div className="flex flex-col items-center text-center">
-            <p className="eyebrow text-base">Join the battle at the join screen — code</p>
+            <p className="eyebrow text-base">Join the battle at the join screen, code</p>
             <p className="my-6 font-display text-[10rem] font-black leading-none tracking-[0.1em] text-gold">
               {code}
             </p>

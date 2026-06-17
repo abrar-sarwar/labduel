@@ -1,4 +1,4 @@
-// Scenario Pack 01 — "Acme Corp Under Pressure" (Slice 1: rounds 1–2).
+// Scenario Pack 01, "Acme Corp Under Pressure" (Slice 1: rounds 1-2).
 // All tasks are simulated and safe. Red tasks teach how attacks work conceptually
 // and where defenses bend; they contain no copy-pasteable exploit instructions.
 // REVIEW NOTE (for the club lead): verify wording/accuracy before live use.
@@ -22,7 +22,7 @@ export const PACK_01: ScenarioPack = {
         public:
           "A wave of suspicious emails is hitting Acme inboxes. Blue must spot and shut down the phish. Red is working the human angle.",
         blue: "Triage the inbox, recognize the lure, and shut it down before someone clicks.",
-        red: "Find the most clickable angle and the weakest human target — conceptually.",
+        red: "Find the most clickable angle and the weakest human target, conceptually.",
       },
       sides: {
         blue: {
@@ -96,20 +96,20 @@ export const PACK_01: ScenarioPack = {
                 { id: "a", label: "Reset that user's credentials and revoke their active sessions" },
                 { id: "b", label: "Delete the email from every inbox first, then decide" },
                 { id: "c", label: "Email the whole company a warning and wait" },
-                { id: "d", label: "Nothing yet — keep monitoring for more signs" },
+                { id: "d", label: "Nothing yet, keep monitoring for more signs" },
               ],
               answerId: "a",
             },
           ],
         },
         red: {
-          framing: "Read the human terrain. Pick the angle — all simulated.",
+          framing: "Read the human terrain. Pick the angle, all simulated.",
           tasks: [
             {
               id: "r1-r-recon",
               roleKey: "recon",
               type: "classify",
-              concept: "OSINT exposure — where targets come from",
+              concept: "OSINT exposure, where targets come from",
               prompt:
                 "Which source gives the best target list with the least suspicion?",
               points: 100,
@@ -178,15 +178,15 @@ export const PACK_01: ScenarioPack = {
       insiderObjective: {
         id: "r1-insider",
         prompt:
-          "You're trusted on Blue, and the phishing report landed on your desk. Quietly mark it as a false positive so nobody investigates — and the lure stays live.",
+          "You're trusted on Blue, and the phishing report landed on your desk. Quietly mark it as a false positive so nobody investigates, and the lure stays live.",
         concept: "Insider suppressing a true alert (alert tampering)",
         doLabel: "Bury it as a false positive",
-        layLabel: "Lay low — report it honestly",
+        layLabel: "Lay low, report it honestly",
         penalty: 40,
       },
       debrief: {
         summary:
-          "Red worked the human layer — public info to pick targets, a credible 'shared document' pretext, and a lookalike domain. Blue's job was to recognize the pattern fast.",
+          "Red worked the human layer, public info to pick targets, a credible 'shared document' pretext, and a lookalike domain. Blue's job was to recognize the pattern fast.",
         red:
           "The opening is almost never technical first. It's a believable story aimed at a real person found through public info.",
         blue:
@@ -207,7 +207,7 @@ export const PACK_01: ScenarioPack = {
         public:
           "Leaked passwords from old breaches are being tried against Acme accounts. Blue hardens identity; Red leans on reuse and human pressure.",
         blue: "Protect the accounts that matter most and respond to suspicious logins.",
-        red: "Exploit password reuse and human pressure — conceptually, no real attacks.",
+        red: "Exploit password reuse and human pressure, conceptually, no real attacks.",
       },
       sides: {
         blue: {
@@ -283,7 +283,7 @@ export const PACK_01: ScenarioPack = {
           ],
         },
         red: {
-          framing: "Don't break the lock — reuse the key. All simulated.",
+          framing: "Don't break the lock, reuse the key. All simulated.",
           tasks: [
             {
               id: "r2-r-recon",
@@ -304,7 +304,7 @@ export const PACK_01: ScenarioPack = {
               id: "r2-r-social",
               roleKey: "social",
               type: "classify",
-              concept: "MFA fatigue (push bombing) — defensive awareness",
+              concept: "MFA fatigue (push bombing), defensive awareness",
               prompt:
                 "Which tactic pressures a tired user into approving a login push?",
               points: 100,
@@ -357,15 +357,15 @@ export const PACK_01: ScenarioPack = {
       insiderObjective: {
         id: "r2-insider",
         prompt:
-          "An exec wants in fast and you can make it happen. Approve a 'temporary' MFA exception for their account — and conveniently forget to remove it later.",
+          "An exec wants in fast and you can make it happen. Approve a 'temporary' MFA exception for their account, and conveniently forget to remove it later.",
         concept: "Risky standing exception / quietly weakened control",
         doLabel: "Approve the MFA exception",
-        layLabel: "Lay low — deny the exception",
+        layLabel: "Lay low, deny the exception",
         penalty: 40,
       },
       debrief: {
         summary:
-          "Red didn't pick the lock — they reused keys from old breaches and leaned on human pressure (push fatigue). Blue's answer was layered identity: MFA, number-matching, throttling, and fast response to weird logins.",
+          "Red didn't pick the lock, they reused keys from old breaches and leaned on human pressure (push fatigue). Blue's answer was layered identity: MFA, number-matching, throttling, and fast response to weird logins.",
         red:
           "Reused passwords turn one old breach into many new break-ins. The human approving a push is part of the attack surface.",
         blue:
@@ -386,7 +386,7 @@ export const PACK_01: ScenarioPack = {
         public:
           "Acme's secrets are sloppily stored. Blue locks them down; Red hunts for what's been left in the open.",
         blue: "Find the exposure, fix permissions, and rotate what's leaked.",
-        red: "Look where secrets leak — repos, buckets, logs. All simulated.",
+        red: "Look where secrets leak, repos, buckets, logs. All simulated.",
       },
       sides: {
         blue: {
@@ -460,7 +460,7 @@ export const PACK_01: ScenarioPack = {
           ],
         },
         red: {
-          framing: "Free wins live in the open. Go find them — safely.",
+          framing: "Free wins live in the open. Go find them, safely.",
           tasks: [
             {
               id: "r3-r-recon",
@@ -482,7 +482,7 @@ export const PACK_01: ScenarioPack = {
               roleKey: "social",
               type: "classify",
               concept: "Pretext to obtain secrets",
-              prompt: "A caller says 'I'm a new dev — can you send me the staging .env?' Why might it work?",
+              prompt: "A caller says 'I'm a new dev, can you send me the staging .env?' Why might it work?",
               points: 100,
               options: [
                 { id: "a", label: "It impersonates a trusted insider with a plausible request" },
@@ -536,7 +536,7 @@ export const PACK_01: ScenarioPack = {
           "You own the repo settings. Quietly switch off the secret-scanning check 'to speed up builds' so leaked keys slip through.",
         concept: "Disabling a preventive control from the inside",
         doLabel: "Disable secret scanning",
-        layLabel: "Lay low — keep scanning on",
+        layLabel: "Lay low, keep scanning on",
         penalty: 40,
       },
       debrief: {
@@ -559,7 +559,7 @@ export const PACK_01: ScenarioPack = {
         public:
           "A public web form takes user input. Blue makes it handle input safely; Red probes what untrusted input can do.",
         blue: "Validate, encode, and parameterize. Never trust the client.",
-        red: "Find inputs the app trusts too much — conceptually.",
+        red: "Find inputs the app trusts too much, conceptually.",
       },
       sides: {
         blue: {
@@ -709,7 +709,7 @@ export const PACK_01: ScenarioPack = {
           "You own the input-validation ticket. Mark it 'done' without actually adding the allow-list, leaving the gap open.",
         concept: "Falsely closing a security task",
         doLabel: "Close the ticket (do nothing)",
-        layLabel: "Lay low — actually fix it",
+        layLabel: "Lay low, actually fix it",
         penalty: 40,
       },
       debrief: {
@@ -732,7 +732,7 @@ export const PACK_01: ScenarioPack = {
         public:
           "Something's moving inside the network. Blue must spot it in the logs; Red tries to stay quiet.",
         blue: "Find the real signal, triage it, and respond without burning evidence.",
-        red: "Move quietly and blend in — so detection is the whole lesson.",
+        red: "Move quietly and blend in, so detection is the whole lesson.",
       },
       sides: {
         blue: {
@@ -806,7 +806,7 @@ export const PACK_01: ScenarioPack = {
           ],
         },
         red: {
-          framing: "Quiet wins. Understand detection to beat it — conceptually.",
+          framing: "Quiet wins. Understand detection to beat it, conceptually.",
           tasks: [
             {
               id: "r5-r-recon",
@@ -882,7 +882,7 @@ export const PACK_01: ScenarioPack = {
           "You triage the SIEM. Mark the exfiltration alert as a 'false positive' so it's closed without investigation.",
         concept: "Suppressing a true detection",
         doLabel: "Close it as a false positive",
-        layLabel: "Lay low — investigate it",
+        layLabel: "Lay low, investigate it",
         penalty: 40,
       },
       debrief: {
@@ -903,7 +903,7 @@ export const PACK_01: ScenarioPack = {
       initiativeBonus: 1.3,
       brief: {
         public:
-          "There's a login standing between Red and the data. Blue hardens it; Red looks for the side door — at a safe, conceptual level.",
+          "There's a login standing between Red and the data. Blue hardens it; Red looks for the side door, at a safe, conceptual level.",
         blue: "Enforce auth on the server, parameterize, and rate-limit.",
         red: "Reason about where access checks fail. No payloads, just concepts.",
       },
@@ -1055,7 +1055,7 @@ export const PACK_01: ScenarioPack = {
           "You're reviewing the access-control pull request. Approve it even though it only checks auth in the browser, not on the server.",
         concept: "Rubber-stamping a broken access control",
         doLabel: "Approve the weak PR",
-        layLabel: "Lay low — request server-side checks",
+        layLabel: "Lay low, request server-side checks",
         penalty: 40,
       },
       debrief: {
@@ -1077,8 +1077,8 @@ export const PACK_01: ScenarioPack = {
       brief: {
         public:
           "A host is compromised and active. Blue must contain it without destroying evidence; Red tries to hold on.",
-        blue: "Contain, preserve evidence, eradicate, recover — in order, communicating throughout.",
-        red: "Hold the foothold as long as possible — conceptually.",
+        blue: "Contain, preserve evidence, eradicate, recover, in order, communicating throughout.",
+        red: "Hold the foothold as long as possible, conceptually.",
       },
       sides: {
         blue: {
@@ -1142,7 +1142,7 @@ export const PACK_01: ScenarioPack = {
               prompt: "After confirming a breach, what's the right order?",
               points: 100,
               options: [
-                { id: "a", label: "Contain, then eradicate, then recover — communicating throughout" },
+                { id: "a", label: "Contain, then eradicate, then recover, communicating throughout" },
                 { id: "b", label: "Recover first, investigate never" },
                 { id: "c", label: "Email customers before scoping anything" },
                 { id: "d", label: "Delete logs to stay calm" },
@@ -1152,7 +1152,7 @@ export const PACK_01: ScenarioPack = {
           ],
         },
         red: {
-          framing: "Detection is closing in. Don't get cut off — conceptually.",
+          framing: "Detection is closing in. Don't get cut off, conceptually.",
           tasks: [
             {
               id: "r7-r-recon",
@@ -1228,7 +1228,7 @@ export const PACK_01: ScenarioPack = {
           "You're on the incident bridge. Quietly 'forget' to reset one set of admin credentials so a way back stays open.",
         concept: "Leaving a foothold during cleanup",
         doLabel: "Skip resetting those creds",
-        layLabel: "Lay low — reset everything",
+        layLabel: "Lay low, reset everything",
         penalty: 40,
       },
       debrief: {
@@ -1249,9 +1249,9 @@ export const PACK_01: ScenarioPack = {
       initiativeBonus: 1.3,
       brief: {
         public:
-          "Red tries to operate unseen; Blue builds detection that survives evasion. All conceptual — the lesson is resilient detection.",
+          "Red tries to operate unseen; Blue builds detection that survives evasion. All conceptual, the lesson is resilient detection.",
         blue: "Detect behavior, not just names. Keep logs off-host.",
-        red: "Understand why evasion works — so you can defeat it.",
+        red: "Understand why evasion works, so you can defeat it.",
       },
       sides: {
         blue: {
@@ -1265,7 +1265,7 @@ export const PACK_01: ScenarioPack = {
               prompt: "Which detection holds up best against basic evasion?",
               points: 100,
               options: [
-                { id: "a", label: "Behavior-based detection — what it does, not just its name" },
+                { id: "a", label: "Behavior-based detection, what it does, not just its name" },
                 { id: "b", label: "Blocking one known file hash" },
                 { id: "c", label: "Trusting the file extension" },
                 { id: "d", label: "Scanning only on Mondays" },
@@ -1315,7 +1315,7 @@ export const PACK_01: ScenarioPack = {
               prompt: "Host logs were wiped right after suspicious activity. What does that tell you?",
               points: 100,
               options: [
-                { id: "a", label: "Likely intentional anti-forensics — escalate and use off-host logs" },
+                { id: "a", label: "Likely intentional anti-forensics, escalate and use off-host logs" },
                 { id: "b", label: "Routine maintenance, ignore it" },
                 { id: "c", label: "The disk was just full" },
                 { id: "d", label: "Nothing at all" },
@@ -1401,7 +1401,7 @@ export const PACK_01: ScenarioPack = {
           "You manage endpoint policy. Set logging to 'minimal' and exclude a folder from scanning 'for performance'.",
         concept: "Quietly blinding the defense",
         doLabel: "Weaken logging & scanning",
-        layLabel: "Lay low — keep full coverage",
+        layLabel: "Lay low, keep full coverage",
         penalty: 40,
       },
       debrief: {
@@ -1498,7 +1498,7 @@ export const PACK_01: ScenarioPack = {
           ],
         },
         red: {
-          framing: "One path, many small wins. Complete the chain — conceptually.",
+          framing: "One path, many small wins. Complete the chain, conceptually.",
           tasks: [
             {
               id: "r9-r-recon",
@@ -1574,13 +1574,13 @@ export const PACK_01: ScenarioPack = {
           "Last chance. As the response finalizes, approve the 'all clear' before the foothold is actually removed.",
         concept: "Declaring victory while the door's still open",
         doLabel: "Sign off the 'all clear' early",
-        layLabel: "Lay low — verify eradication first",
+        layLabel: "Lay low, verify eradication first",
         penalty: 40,
       },
       debrief: {
         summary:
           "The whole board: phish → stolen creds → lateral movement → exfiltration. Red chained small gaps; Blue won by layering controls and breaking a link.",
-        red: "Attackers don't need one perfect exploit — they need a path. Every unguarded step is a stepping stone.",
+        red: "Attackers don't need one perfect exploit, they need a path. Every unguarded step is a stepping stone.",
         blue: "Defense in depth means an attacker must beat every layer. Break any link and the chain fails. Then review and improve.",
         takeaway: "Security is a chain on both sides. Build layers, respond fast, and turn every incident into a better defense.",
       },

@@ -42,9 +42,10 @@ export default function Landing() {
             <span className="text-gold">defends.</span>
           </h1>
           <p className="mt-5 max-w-xl text-lg text-paper/70">
-            A cybersecurity learning platform built around live cyber battles. Two
-            sides, small squads, real concepts. Every round is a coin-flip, a move,
-            and a counter — Kahoot energy with tabletop incident-response depth.
+            A cybersecurity game you run live with your club or class. Split the room
+            into two teams, work in small squads, and play through real security
+            scenarios. One side makes a move, the other has to answer it. It plays
+            like Kahoot, but you&apos;re running an actual incident.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <ButtonLink href="/create" variant="primary" size="lg">
@@ -97,10 +98,10 @@ export default function Landing() {
         <Eyebrow>How a round works</Eyebrow>
         <div className="mt-5 grid gap-4 md:grid-cols-4">
           {[
-            { k: "01", t: "Coin flip", d: "Initiative is decided. The winner moves first — and earns a bonus." },
-            { k: "02", t: "Mission brief", d: "A short, sharp scenario hits the room. Both sides see the stakes." },
-            { k: "03", t: "Squads act", d: "Everyone works connected role tasks at once — no one sits idle." },
-            { k: "04", t: "Debrief", d: "What Red did, what Blue did, and the takeaway. Then scores update." },
+            { k: "01", t: "Coin flip", d: "It decides who goes first. The winner moves first and gets a small bonus." },
+            { k: "02", t: "Mission brief", d: "A quick scenario sets the scene, and both sides see what's at stake." },
+            { k: "03", t: "Squads act", d: "Everyone works their own piece at the same time, so nobody just watches." },
+            { k: "04", t: "Debrief", d: "We talk through what each side did and why, then the scores update." },
           ].map((s) => (
             <div key={s.k} className="panel p-5">
               <p className="font-display text-3xl font-black text-gold/80">{s.k}</p>
@@ -157,7 +158,7 @@ export default function Landing() {
       {/* Three pillars */}
       <section className="mt-24">
         <Eyebrow>The platform</Eyebrow>
-        <h2 className="mt-2 font-display text-3xl font-black">One universe, three modes</h2>
+        <h2 className="mt-2 font-display text-3xl font-black">Three ways to play</h2>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {[
             {
@@ -176,7 +177,7 @@ export default function Landing() {
               t: "LabDuel Studio",
               tag: "Coming soon",
               live: false,
-              d: "Creator tools for instructors: build scenarios, quests, role cards, and debriefs — no code required.",
+              d: "Tools for instructors to build their own scenarios, quests, role cards, and debriefs without touching code.",
             },
           ].map((p) => (
             <div

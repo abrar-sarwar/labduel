@@ -1,4 +1,4 @@
-// Upgrade catalog — static content, safe for client import (no secrets).
+// Upgrade catalog, static content, safe for client import (no secrets).
 // Red upgrades are framed responsibly and conceptually; no real attack tooling.
 
 import type { Team } from "../shared/roles";
@@ -15,7 +15,7 @@ export interface Upgrade {
   name: string;
   cost: number;
   blurb: string;
-  /** What it teaches — shown as a tooltip-style line. */
+  /** What it teaches, shown as a tooltip-style line. */
   concept: string;
   effect: UpgradeEffect;
 }
@@ -72,7 +72,7 @@ export const BLUE_UPGRADES: Upgrade[] = [
     name: "Cyber Insurance",
     cost: 120,
     blurb: "+450 now, but premiums cut future income by 110.",
-    concept: "Insurance funds recovery — it doesn't erase the incident.",
+    concept: "Insurance funds recovery, it doesn't erase the incident.",
     effect: { kind: "insurance", money: 450, premium: 110 },
   },
 ];
@@ -129,7 +129,7 @@ export const RED_UPGRADES: Upgrade[] = [
     name: "War Chest",
     cost: 120,
     blurb: "+450 now, but funders take 110 from future income.",
-    concept: "Outside funding fuels a comeback — with strings attached.",
+    concept: "Outside funding fuels a comeback, with strings attached.",
     effect: { kind: "insurance", money: 450, premium: 110 },
   },
 ];

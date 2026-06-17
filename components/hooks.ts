@@ -43,15 +43,19 @@ export function useGameStream(code: string) {
 
 export type SessionRole = "host" | "player" | "none" | "loading";
 
-/** Fetch the caller's private view; re-fetch whenever the public `rev` advances. */
-export function usePlayerView(code: string, rev: number | undefined) {
+/**
+ * Fetch the caller's private view; re-fetch whenever the public `rev` advances.
+ * Pass `asPlayer` on the player screen so a host previewing in another tab still
+ * gets the player view rather than their host identity.
+ */
+export function usePlayerView(code: string, rev: number | undefined, asPlayer = false) {
   const [role, setRole] = useState<SessionRole>("loading");
   const [view, setView] = useState<PlayerView | null>(null);
   const [moderation, setModeration] = useState<HostModeration | null>(null);
 
   const refetch = useCallback(async () => {
     try {
-      const res = await fetch(`/api/games/${code}/me`, { cache: "no-store" });
+      const res = await fetch(`/api/games/${code}/me${asPlayer ? "?as=player" : ""}`, { cache: "no-store" });
       if (!res.ok) return;
       const data = await res.json();
       setRole(data.role as SessionRole);
@@ -60,7 +64,7 @@ export function usePlayerView(code: string, rev: number | undefined) {
     } catch {
       /* transient */
     }
-  }, [code]);
+  }, [code, asPlayer]);
 
   useEffect(() => {
     refetch();

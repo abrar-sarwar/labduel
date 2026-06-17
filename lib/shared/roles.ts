@@ -24,7 +24,7 @@ export const BLUE_ROLES: RoleDef[] = [
     key: "analyst",
     team: "blue",
     name: "Analyst",
-    blurb: "Reads the signals — maps indicators to what they actually mean.",
+    blurb: "Reads the signals, maps indicators to what they actually mean.",
     glyph: "scope",
   },
   {
@@ -38,7 +38,7 @@ export const BLUE_ROLES: RoleDef[] = [
     key: "responder",
     team: "blue",
     name: "Responder",
-    blurb: "Decides the response — contain, report, recover, in the right order.",
+    blurb: "Decides the response, contain, report, recover, in the right order.",
     glyph: "pulse",
   },
 ];
@@ -48,14 +48,14 @@ export const RED_ROLES: RoleDef[] = [
     key: "recon",
     team: "red",
     name: "Recon",
-    blurb: "Finds the opening — what's exposed and who's a target.",
+    blurb: "Finds the opening, what's exposed and who's a target.",
     glyph: "scope",
   },
   {
     key: "social",
     team: "red",
     name: "Social Engineer",
-    blurb: "Crafts the human angle — the pretext that gets a click.",
+    blurb: "Crafts the human angle, the pretext that gets a click.",
     glyph: "mask",
   },
   {

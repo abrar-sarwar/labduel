@@ -55,7 +55,7 @@ export const STARTING_ECONOMY: () => Economy = () => ({
 export interface Player {
   id: string;
   name: string;
-  /** SERVER ONLY — never serialized to any client payload. */
+  /** SERVER ONLY, never serialized to any client payload. */
   token: string;
   team: Team | null;
   squadId: string | null;
@@ -64,7 +64,7 @@ export interface Player {
   /** "active" once placed; "waiting" for late joiners awaiting next round. */
   status: "active" | "waiting";
   /**
-   * SERVER ONLY — never serialized to public state or to OTHER players' payloads.
+   * SERVER ONLY, never serialized to public state or to OTHER players' payloads.
    * True for the one Blue player secretly playing as the Insider Threat.
    */
   insider: boolean;
@@ -96,7 +96,7 @@ export interface RoundRuntime {
   submissions: Submission[];
   scored: boolean;
   roundScore: { red: number; blue: number };
-  /** SERVER ONLY — whether the Insider chose to sabotage this round. */
+  /** SERVER ONLY, whether the Insider chose to sabotage this round. */
   insiderSabotaged: boolean;
 }
 
@@ -119,13 +119,13 @@ export interface GameState {
   packId: string;
   players: Player[];
   squads: Squad[];
-  /** SERVER ONLY — id of the Insider player, or null. Never projected publicly. */
+  /** SERVER ONLY, id of the Insider player, or null. Never projected publicly. */
   insiderPlayerId: string | null;
   roundIndex: number;
   rounds: RoundRuntime[];
   scores: { red: number; blue: number };
   economy: Economy;
-  /** Company breach meter (0–100). 100 = full breach → Red wins. */
+  /** Company breach meter (0-100). 100 = full breach → Red wins. */
   companyDamage: number;
   /** Server-stored deadline for the current timed phase (epoch ms). */
   phaseDeadline: number | null;
@@ -184,7 +184,7 @@ export interface PublicFinal {
   mvpSquad: { name: string; team: Team; score: number } | null;
   recap: { round: number; title: string; takeaway: string }[];
   /**
-   * Insider/Checkmate reveal — populated ONLY at final results (game over), so
+   * Insider/Checkmate reveal, populated ONLY at final results (game over), so
    * disclosing the insider's identity here is intentional and safe.
    */
   checkmate: { enabled: boolean; unlocked: boolean; insiderName: string | null } | null;

@@ -73,7 +73,7 @@ describe("insider hidden-data protection", () => {
     const state = toActive(5);
     const pub = toPublicState(state, PACK_01);
     const json = JSON.stringify(pub);
-    // The mode being ON is public (settings.insiderThreat) — that's fine. The
+    // The mode being ON is public (settings.insiderThreat), that's fine. The
     // insider appears in the roster like everyone else; what must NOT leak is any
     // field marking WHICH player is the insider, plus the objective text.
     expect(pub.players.every((p) => !("insider" in p))).toBe(true);
@@ -144,7 +144,7 @@ describe("insider action + checkmate", () => {
     state = advanceUntil(state, "finalResults", 7);
     const pub = toPublicState(state, PACK_01);
     expect(pub.final!.checkmate!.unlocked).toBe(true);
-    expect(pub.final!.winner).toBe("red"); // Red wins even at 0–0
+    expect(pub.final!.winner).toBe("red"); // Red wins even at 0-0
     expect(pub.final!.checkmate!.insiderName).toBeTruthy();
   });
 

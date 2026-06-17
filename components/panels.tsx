@@ -97,7 +97,7 @@ export function ScoreboardSquads({ squads }: { squads: PublicSquad[] }) {
               <div className="min-w-0">
                 <p className="truncate font-display text-sm font-bold">{s.name}</p>
                 <p className="truncate text-[0.7rem] text-paper/50">
-                  {s.memberNames.join(" · ") || "—"}
+                  {s.memberNames.join(" · ") || "-"}
                 </p>
               </div>
               <span className="ml-2 font-display text-lg font-black tabular-nums">{s.score}</span>
@@ -151,7 +151,7 @@ export function FinalBlock({ final }: { final: PublicFinal }) {
         <p className="text-sm text-paper/70">
           The Insider was{" "}
           <span className="font-display font-bold text-red-team">{checkmate.insiderName}</span>
-          {checkmate.unlocked ? " — and they pulled it off." : " — Blue held the line."}
+          {checkmate.unlocked ? ", and they pulled it off." : ", Blue held the line."}
         </p>
       )}
       <div className="mx-auto flex max-w-sm items-center justify-center gap-8">
@@ -206,7 +206,7 @@ export function CompanyDamageMeter({ value, compact }: { value: number; compact?
         <div className={cn("h-full rounded-full transition-[width] duration-700", tone)} style={{ width: `${pct}%` }} />
       </div>
       {!compact && pct >= 80 && (
-        <p className="mt-1 text-[0.7rem] text-danger">Critical — at 100% the company is fully breached (Red wins).</p>
+        <p className="mt-1 text-[0.7rem] text-danger">Critical, at 100% the company is fully breached (Red wins).</p>
       )}
     </div>
   );
@@ -329,7 +329,7 @@ export function InsiderRevealCard() {
         You are the Insider
       </h3>
       <p className="mt-2 text-sm text-paper/80">
-        You&apos;re on Blue — but you secretly work for Red. Blend in, do your normal
+        You&apos;re on Blue, but you secretly work for Red. Blend in, do your normal
         tasks for cover, and quietly weaken Blue when the chance comes. Sabotage every
         round and you can trigger the <span className="text-red-team">Checkmate Protocol</span>.
         Tell no one.
@@ -415,7 +415,7 @@ export function InsiderPanel({
           ) : (
             <p className="mt-3 text-sm text-paper/60">
               {insider.sabotagedThisRound
-                ? "You moved on this one. Stay cool — act natural."
+                ? "You moved on this one. Stay cool, act natural."
                 : "You stayed clean this round."}
             </p>
           )}
@@ -452,7 +452,7 @@ export function HostModerationPanel({ moderation }: { moderation: HostModeration
       <p className="mt-2 text-sm text-paper/70">
         Insider:{" "}
         <span className="font-display font-bold text-paper">
-          {moderation.insiderName ?? "— not assigned (need 3+ Blue)"}
+          {moderation.insiderName ?? "- not assigned (need 3+ Blue)"}
         </span>
       </p>
       <div className="mt-3">
@@ -479,7 +479,7 @@ export function HostModerationPanel({ moderation }: { moderation: HostModeration
                 r.sabotaged ? "bg-red-team/20 text-red-team" : "bg-white/5 text-paper/40"
               )}
             >
-              R{r.round} {r.sabotaged ? "✓" : "—"}
+              R{r.round} {r.sabotaged ? "✓" : "-"}
             </span>
           ))}
         </div>

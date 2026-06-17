@@ -1,4 +1,4 @@
-// Zod schemas — every inbound action is validated against one of these before
+// Zod schemas, every inbound action is validated against one of these before
 // the engine ever sees it.
 
 import { z } from "zod";
@@ -13,7 +13,7 @@ export const roomCodeSchema = z
   .string()
   .trim()
   .toUpperCase()
-  .regex(/^[A-Z0-9]{4,6}$/, "Room codes are 4–6 letters/numbers");
+  .regex(/^[A-Z0-9]{4,6}$/, "Room codes are 4-6 letters/numbers");
 
 export const createGameSchema = z.object({
   hostName: displayNameSchema.optional(),

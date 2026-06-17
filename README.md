@@ -1,7 +1,7 @@
 # LabDuel
 
 A cybersecurity learning platform built around interactive cyber battles. The
-first mode — **LabDuel Live** — is a host-led, red-vs-blue classroom game:
+first mode, **LabDuel Live**, is a host-led, red-vs-blue classroom game:
 "Kahoot meets tabletop cyber incident response," with Clash-Royale-style
 competitive energy. Red strikes, Blue defends, every round.
 
@@ -14,9 +14,9 @@ are designed-for but not yet built. See
 
 ## The three pillars
 
-- **LabDuel Live** — host-led classroom red-vs-blue battles. _(this slice)_
-- **LabDuel Quest** — solo, turn-based cyber RPG. _(later)_
-- **LabDuel Studio** — creator/instructor tools for authoring content. _(later)_
+- **LabDuel Live**, host-led classroom red-vs-blue battles. _(this slice)_
+- **LabDuel Quest**, solo, turn-based cyber RPG. _(later)_
+- **LabDuel Studio**, creator/instructor tools for authoring content. _(later)_
 
 ## Stack
 
@@ -29,7 +29,7 @@ drops in later without touching the engine or UI.
 
 **The server owns the game.** The browser only renders state and sends actions; it
 never computes scores, roles, initiative, or winners. Public state and per-player
-private data travel on separate channels — task answers and (future) hidden-role
+private data travel on separate channels, task answers and (future) hidden-role
 data never reach clients that shouldn't see them.
 
 ## Develop

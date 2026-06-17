@@ -1,4 +1,4 @@
-// Scenario content model — data only, kept separate from the engine.
+// Scenario content model, data only, kept separate from the engine.
 // Every task is simulated and safe: no copy-pasteable exploit content.
 
 import type { Team } from "./roles";
@@ -25,7 +25,7 @@ interface TaskBase {
 export interface ClassifyTask extends TaskBase {
   type: "classify";
   options: TaskOption[];
-  /** PRIVATE — server only. Stripped before any client payload. */
+  /** PRIVATE, server only. Stripped before any client payload. */
   answerId: string;
 }
 
@@ -34,7 +34,7 @@ export interface FillBlankTask extends TaskBase {
   /** Template containing a single "___" placeholder. */
   template: string;
   options: TaskOption[];
-  /** PRIVATE — server only. */
+  /** PRIVATE, server only. */
   answerId: string;
 }
 
@@ -42,7 +42,7 @@ export interface MatchTask extends TaskBase {
   type: "match";
   left: TaskOption[];
   right: TaskOption[];
-  /** PRIVATE — server only. Map of leftId -> correct rightId. */
+  /** PRIVATE, server only. Map of leftId -> correct rightId. */
   answer: Record<string, string>;
 }
 
@@ -57,7 +57,7 @@ export interface SideMission {
 /**
  * The secret objective offered to the Insider during a round. Simulated and safe:
  * it describes a conceptual insider-threat action (weakening a control), never a
- * real-world harmful instruction. PRIVATE — only ever reaches the insider + host.
+ * real-world harmful instruction. PRIVATE, only ever reaches the insider + host.
  */
 export interface InsiderObjective {
   id: string;

@@ -82,7 +82,7 @@ export function startGame(
 
   const { players, squads } = assignTeamsAndSquads(state.players, state.settings, rng);
 
-  // Insider Threat: secretly elevate one Blue player — only with enough Blue
+  // Insider Threat: secretly elevate one Blue player, only with enough Blue
   // players that it isn't obvious or crippling. Never assigned otherwise.
   let insiderPlayerId: string | null = null;
   let finalPlayers = players;
@@ -135,7 +135,7 @@ export function checkmateState(state: GameState): CheckmateState {
   return { enabled, progress, threshold, unlocked: enabled && progress >= threshold };
 }
 
-/** Toggle Insider Threat — host only, lobby only. */
+/** Toggle Insider Threat, host only, lobby only. */
 export function setInsiderThreat(
   state: GameState,
   enabled: boolean,
@@ -224,7 +224,7 @@ function finalizeRound(state: GameState, pack: ScenarioPack): GameState {
   }
   const rounds = state.rounds.slice();
   rounds[state.roundIndex] = { ...round, scored: true, roundScore };
-  // The next-round score bonus from the shop applies to exactly one round — spend it.
+  // The next-round score bonus from the shop applies to exactly one round, spend it.
   const economy = {
     red: { ...state.economy.red, nextRoundBonusPct: 0 },
     blue: { ...state.economy.blue, nextRoundBonusPct: 0 },

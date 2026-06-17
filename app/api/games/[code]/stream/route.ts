@@ -1,5 +1,5 @@
 import { registry } from "@/lib/server/registry";
-import { getActor } from "@/lib/server/auth";
+import { getPlayerId } from "@/lib/server/auth";
 import { setConnected } from "@/lib/engine";
 
 export const dynamic = "force-dynamic";
@@ -15,18 +15,16 @@ export async function GET(
   if (!registry.has(code)) {
     return new Response("game_not_found", { status: 404 });
   }
-  const actor = await getActor(code);
+  const playerId = await getPlayerId(code);
   const encoder = new TextEncoder();
 
   let unsubscribe: (() => void) | undefined;
   let heartbeat: ReturnType<typeof setInterval> | undefined;
 
   const markConnected = (connected: boolean) => {
-    if (actor.role !== "player") return;
+    if (!playerId) return;
     try {
-      registry.mutate(code, (s) =>
-        setConnected(s, actor.playerId, connected, Date.now())
-      );
+      registry.mutate(code, (s) => setConnected(s, playerId, connected, Date.now()));
     } catch {
       /* game may be gone */
     }
