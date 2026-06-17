@@ -49,7 +49,7 @@ function Stepper({
 export default function CreatePage() {
   const router = useRouter();
   const [hostName, setHostName] = useState("");
-  const [roundCount, setRoundCount] = useState(2);
+  const [roundCount, setRoundCount] = useState(9);
   const [squadSize, setSquadSize] = useState(5);
   const [roundSeconds, setRoundSeconds] = useState(90);
   const [insiderThreat, setInsiderThreat] = useState(false);
@@ -99,9 +99,10 @@ export default function CreatePage() {
             />
           </div>
 
-          <Stepper label="Rounds" value={roundCount} min={1} max={2} onChange={setRoundCount} />
+          <Stepper label="Rounds" value={roundCount} min={1} max={9} onChange={setRoundCount} />
           <p className="-mt-2 px-1 text-xs text-paper/40">
-            2 rounds of content are live (phishing, MFA). More coming.
+            Full 9-round ladder: phishing → MFA → secrets → web input → detection →
+            auth bypass → containment → evasion → full incident.
           </p>
           <Stepper label="Target squad size" value={squadSize} min={3} max={6} onChange={setSquadSize} />
 

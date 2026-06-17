@@ -109,14 +109,23 @@ errors for invalid/already-started room codes; late joiners after start land in 
 holding state and are auto-placed at the next round boundary (host sees them). Full
 manual late-joiner override UI is deferred.
 
-## Content (drafted here, user reviews)
+## Content — full 9-round ladder (BUILT — Slice 1.3, drafted here, user reviews)
 
-- **Round 1 — Phishing / social-engineering spotting.**
-- **Round 2 — Passwords / MFA / account protection.**
+The complete learning ladder is authored in `lib/content/pack-01.ts`:
 
-Each with: mission brief, Red + Blue squad missions (role sub-tasks), scoring, and a
-short debrief. Authored as reviewable TypeScript content packs, kept abstract and
-safe.
+1. Phishing & social engineering · 2. Passwords, MFA & accounts · 3. File
+permissions & exposed secrets · 4. Web input validation · 5. Logs, alerts &
+detection · 6. Injection & auth bypass (conceptual) · 7. Containment & incident
+response · 8. Evasion vs detection (conceptual) · 9. Full incident (attack chain +
+response chain).
+
+Each round has: public/red/blue briefs, a 4-role Blue mission and 4-role Red
+mission (classify / fill-blank / match sub-tasks), a per-round Insider objective,
+scoring, and a debrief. All content is abstract, fictionalized, and safe — no
+copy-pasteable exploit instructions. A `pack.test.ts` suite enforces structural
+integrity (unique task ids, valid answers/options, full role coverage, insider
+objective present). The host can run any 1–9 of them; the create screen defaults
+to the full 9.
 
 ## Insider Threat + Checkmate Protocol (BUILT — Slice 1.1)
 
@@ -162,7 +171,7 @@ the last round) with a discussion timer. Each side has a **shared team budget**.
 
 Team voting on purchases ·
 the other team/role assignment modes · role-rotation toggle · characters/art ·
-rounds 3–9 · full host override console · Supabase adapter wiring · LabDuel Quest ·
+full host override console · Supabase adapter wiring · LabDuel Quest ·
 LabDuel Studio · platform/accounts layer.
 
 ## Visual identity

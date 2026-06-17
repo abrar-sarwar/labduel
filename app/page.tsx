@@ -4,13 +4,13 @@ import { LabDuelMark } from "@/components/icons";
 const ROUNDS = [
   { n: 1, t: "Phishing & social engineering", live: true },
   { n: 2, t: "Passwords, MFA & accounts", live: true },
-  { n: 3, t: "File permissions & secrets", live: false },
-  { n: 4, t: "Web input validation", live: false },
-  { n: 5, t: "Logs, alerts & detection", live: false },
-  { n: 6, t: "Injection & auth bypass", live: false },
-  { n: 7, t: "Containment & response", live: false },
-  { n: 8, t: "Evasion vs detection", live: false },
-  { n: 9, t: "Full incident", live: false },
+  { n: 3, t: "File permissions & secrets", live: true },
+  { n: 4, t: "Web input validation", live: true },
+  { n: 5, t: "Logs, alerts & detection", live: true },
+  { n: 6, t: "Injection & auth bypass", live: true },
+  { n: 7, t: "Containment & response", live: true },
+  { n: 8, t: "Evasion vs detection", live: true },
+  { n: 9, t: "Full incident", live: true },
 ];
 
 export default function Landing() {
@@ -120,7 +120,7 @@ export default function Landing() {
               Warmup → pressure → full incident
             </h2>
           </div>
-          <Chip className="hidden sm:inline-flex">2 rounds live now</Chip>
+          <Chip className="hidden sm:inline-flex">All 9 rounds live</Chip>
         </div>
         <div className="mt-6 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
           {ROUNDS.map((r) => (
