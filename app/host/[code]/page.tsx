@@ -90,6 +90,14 @@ export default function HostPage() {
     }
   }
 
+  async function addTestPlayers(count: number) {
+    try {
+      await postAction(`/api/games/${code}/test`, { kind: "addBots", count });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not add test players");
+    }
+  }
+
   async function lobbySetTeam(playerId: string, team: "red" | "blue") {
     try {
       await postAction(`/api/games/${code}/lobby`, { kind: "setTeam", playerId, team });
@@ -230,6 +238,25 @@ export default function HostPage() {
                 {canStart ? "Start game" : "Need at least 2 players"}
               </Button>
               {error && <p className="mt-3 text-sm text-danger">{error}</p>}
+
+              <div className="mt-4 rounded-xl border border-dashed border-mint/30 bg-mint/5 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <p className="font-display text-sm font-bold text-mint">Test mode</p>
+                    <p className="text-xs text-paper/55">
+                      Add bot players so you can run the whole game solo. They auto-answer each round.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-2 flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => addTestPlayers(6)}>
+                    + 6 bots
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => addTestPlayers(12)}>
+                    + 12 bots
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         ) : (

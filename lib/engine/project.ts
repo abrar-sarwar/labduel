@@ -107,6 +107,7 @@ export function toPublicState(state: GameState, pack: ScenarioPack): PublicState
       roleKey: state.settings.roleMode === "hidden" ? null : p.roleKey,
       connected: p.connected,
       status: p.status,
+      isBot: p.isBot,
     })),
     squads: publicSquads,
     round,

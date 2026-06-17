@@ -62,9 +62,11 @@ const config: Config = {
           "100%": { transform: "scale(1)", opacity: "1" },
         },
         "coin-flip": {
-          "0%": { transform: "rotateY(0deg) scale(1)" },
-          "20%": { transform: "rotateY(720deg) scale(1.15)" },
-          "100%": { transform: "rotateY(1980deg) scale(1)" },
+          "0%": { transform: "translateY(-10px) rotateX(0deg) scale(0.9)", opacity: "0" },
+          "12%": { opacity: "1" },
+          "70%": { transform: "translateY(0) rotateX(1980deg) scale(1.08)" },
+          "85%": { transform: "translateY(-8px) rotateX(2070deg) scale(1)" },
+          "100%": { transform: "translateY(0) rotateX(2160deg) scale(1)" },
         },
         "slash": {
           "0%": { transform: "translateX(-120%) skewX(-18deg)", opacity: "0" },
@@ -83,7 +85,7 @@ const config: Config = {
       animation: {
         rise: "rise 0.5s cubic-bezier(0.22,1,0.36,1) both",
         pop: "pop 0.4s cubic-bezier(0.22,1,0.36,1) both",
-        "coin-flip": "coin-flip 1.6s cubic-bezier(0.3,0.7,0.2,1) both",
+        "coin-flip": "coin-flip 2s cubic-bezier(0.25,0.8,0.3,1) both",
         slash: "slash 0.7s ease-in both",
         "pulse-ring": "pulse-ring 1.6s ease-out infinite",
         ticker: "ticker 22s linear infinite",

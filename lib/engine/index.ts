@@ -8,3 +8,4 @@ export * from "./create";
 export * from "./project";
 export * from "./override";
 export * from "./lobby";
+export * from "./bots";

@@ -179,18 +179,25 @@ export function CoinFlip({
   const c = teamClasses(initiative);
   return (
     <div className="flex flex-col items-center gap-4 text-center">
-      <div className="perspective">
-        <div
-          key={round}
-          className="preserve-3d animate-coin-flip relative grid h-28 w-28 place-items-center rounded-full"
-          style={{
-            background: "radial-gradient(circle at 35% 30%, #ffe39a, #f6b73c 55%, #b9821a)",
-            boxShadow: "0 14px 40px -10px rgba(246,183,60,0.6), inset 0 0 0 4px rgba(0,0,0,0.12)",
-          }}
-        >
-          <span className="font-display text-4xl font-black text-ink/80">
-            {initiative === "red" ? "R" : "B"}
-          </span>
+      <div className="perspective py-2">
+        <div key={round} className="preserve-3d animate-coin-flip relative h-28 w-28">
+          {/* two faces so the spin clearly reads as a coin flip */}
+          {(["front", "back"] as const).map((face) => (
+            <div
+              key={face}
+              className="backface-hidden absolute inset-0 grid place-items-center rounded-full"
+              style={{
+                background: "radial-gradient(circle at 35% 30%, #ffe39a, #f6b73c 55%, #b9821a)",
+                boxShadow:
+                  "0 14px 40px -10px rgba(246,183,60,0.7), inset 0 0 0 4px rgba(0,0,0,0.14)",
+                transform: face === "back" ? "rotateX(180deg)" : undefined,
+              }}
+            >
+              <span className="font-display text-4xl font-black text-ink/80">
+                {initiative === "red" ? "R" : "B"}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
       <div>

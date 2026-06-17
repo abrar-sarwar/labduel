@@ -81,6 +81,8 @@ export interface Player {
    * True for the one Blue player secretly playing as the Insider Threat.
    */
   insider: boolean;
+  /** Test/demo player driven by the server (auto-answers each round). */
+  isBot: boolean;
   joinedAt: number;
 }
 
@@ -158,6 +160,7 @@ export interface PublicPlayer {
   roleKey: string | null;
   connected: boolean;
   status: "active" | "waiting";
+  isBot: boolean;
 }
 
 export interface PublicSquad {

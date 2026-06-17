@@ -1,5 +1,5 @@
 import { hostActionSchema } from "@/lib/shared/schemas";
-import { startGame, advance, forceLock, setInsiderThreat } from "@/lib/engine";
+import { startGame, advance, forceLock, setInsiderThreat, botsAutoSubmit } from "@/lib/engine";
 import { registry } from "@/lib/server/registry";
 import { isHost } from "@/lib/server/auth";
 import { secureRng } from "@/lib/server/rng";
@@ -36,6 +36,10 @@ export async function POST(
           return state;
       }
     });
+    // When a round goes live, let any test bots answer so the demo plays itself.
+    if (next.phase === "active" && next.players.some((p) => p.isBot)) {
+      registry.mutate(code, (state, pack) => botsAutoSubmit(state, pack, Date.now(), secureRng));
+    }
     return ok({ phase: next.phase });
   } catch (e) {
     return errorResponse(e);

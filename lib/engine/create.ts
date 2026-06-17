@@ -69,6 +69,7 @@ export function addPlayer(state: GameState, p: AddPlayerParams): GameState {
     connected: true,
     status,
     insider: false,
+    isBot: false,
     joinedAt: p.now,
   };
 

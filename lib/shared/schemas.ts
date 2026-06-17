@@ -75,6 +75,12 @@ export const buyUpgradeSchema = z.object({
   upgradeId: z.string().min(1),
 });
 
+// Test/demo helpers (host-authorized).
+export const testActionSchema = z.object({
+  kind: z.literal("addBots"),
+  count: z.number().int().min(1).max(40),
+});
+
 // Host override console (host-authorized).
 export const overrideSchema = z.discriminatedUnion("kind", [
   z.object({
