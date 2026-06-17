@@ -12,7 +12,7 @@ import type {
 import type { ScenarioPack, RoundContent, TaskDef } from "../shared/content-types";
 import type { Rng } from "./rng";
 import { validateAnswer, scoreSubmission } from "./scoring";
-import { assignTeamsAndSquads } from "./assign";
+import { assignTeamsAndSquads, placeWaitingPlayers } from "./assign";
 
 export class GameError extends Error {
   constructor(public code: string, message: string) {
@@ -90,6 +90,10 @@ export function startGame(
 // ---------------- Begin a round ----------------
 
 function beginRound(state: GameState, index: number, now: number, rng: Rng): GameState {
+  // Fold any late joiners into squads before the new round starts.
+  const placed = placeWaitingPlayers(state.players, state.squads, rng);
+  state = { ...state, players: placed.players, squads: placed.squads };
+
   const round: RoundRuntime = {
     number: index + 1,
     initiative: flip(rng),

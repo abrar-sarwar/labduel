@@ -33,8 +33,9 @@
     mask-image: radial-gradient(circle at 50% 30%, black, transparent 85%);
   }
 
-  h1, h2, h3, h4, .font-display {
-    @apply font-display tracking-tight;
+  h1, h2, h3, h4 {
+    font-family: var(--font-display), system-ui, sans-serif;
+    letter-spacing: -0.02em;
     font-stretch: 125%;
   }
 
@@ -60,7 +61,7 @@
     @apply font-mono text-[0.68rem] uppercase tracking-[0.34em] text-paper/55;
   }
 
-  /* Diagonal strike accent (the "parry") */
+  /* Diagonal strike accent (the "duel" strike) */
   .strike {
     position: relative;
     overflow: hidden;

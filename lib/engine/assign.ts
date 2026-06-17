@@ -82,3 +82,51 @@ export function assignTeamsAndSquads(
   const updatedPlayers = players.map((p) => updatedById.get(p.id) ?? p);
   return { players: updatedPlayers, squads };
 }
+
+/**
+ * Place any `waiting` (late-joiner) players into existing squads, balancing onto
+ * the smaller team and the smallest squad. Pure given an Rng. Called at round
+ * boundaries so late joiners enter on the next round, never mid-round.
+ */
+export function placeWaitingPlayers(
+  players: Player[],
+  squads: Squad[],
+  rng: Rng
+): AssignmentResult {
+  const waiting = shuffle(
+    players.filter((p) => p.status === "waiting"),
+    rng
+  );
+  if (waiting.length === 0 || squads.length === 0) return { players, squads };
+
+  // mutable working copies
+  const squadList = squads.map((s) => ({ ...s, memberIds: s.memberIds.slice() }));
+  const teamSize = (team: Team) =>
+    squadList
+      .filter((s) => s.team === team)
+      .reduce((n, s) => n + s.memberIds.length, 0);
+  const updatedById = new Map<string, Player>();
+
+  for (const p of waiting) {
+    const team: Team = teamSize("red") <= teamSize("blue") ? "red" : "blue";
+    const roles = rolesForTeam(team);
+    const target = squadList
+      .filter((s) => s.team === team)
+      .sort((a, b) => a.memberIds.length - b.memberIds.length)[0];
+    if (!target) continue;
+    const roleKey = roles[target.memberIds.length % roles.length].key;
+    target.memberIds.push(p.id);
+    updatedById.set(p.id, {
+      ...p,
+      team,
+      squadId: target.id,
+      roleKey,
+      status: "active",
+    });
+  }
+
+  return {
+    players: players.map((p) => updatedById.get(p.id) ?? p),
+    squads: squadList,
+  };
+}

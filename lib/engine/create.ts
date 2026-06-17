@@ -16,7 +16,11 @@ export interface CreateGameParams {
 }
 
 export function createGameState(params: CreateGameParams): GameState {
-  const settings: GameSettings = { ...DEFAULT_SETTINGS, ...params.settings };
+  // Ignore undefined overrides so partial inputs don't clobber defaults.
+  const overrides = Object.fromEntries(
+    Object.entries(params.settings ?? {}).filter(([, v]) => v !== undefined)
+  );
+  const settings: GameSettings = { ...DEFAULT_SETTINGS, ...overrides };
   return {
     id: params.id,
     code: params.code,

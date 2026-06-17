@@ -1,4 +1,4 @@
-// Core Parry Live domain types shared between server and client.
+// Core LabDuel Live domain types shared between server and client.
 
 import type { Team } from "./roles";
 import type { PublicTask } from "./content-types";

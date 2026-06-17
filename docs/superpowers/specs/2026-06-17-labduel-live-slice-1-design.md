@@ -1,20 +1,22 @@
-# Parry — Slice 1 Design ("Playable Skeleton")
+# LabDuel — Slice 1 Design ("Playable Skeleton")
 
 **Date:** 2026-06-17
 **Status:** Approved — building.
 
 ## Product context
 
-Parry is a live, classroom-friendly, red-team-vs-blue-team cybersecurity learning
-game. "Kahoot meets tabletop cyber incident response," with competitive,
-Clash-Royale-style energy. Red acts, Blue parries; every round is action and
-reaction. First audience: a cybersecurity club running it live with 50+ students.
+LabDuel is a cybersecurity learning platform built around interactive cyber
+battles. The first mode is a live, classroom-friendly, red-vs-blue game: "Kahoot
+meets tabletop cyber incident response," with competitive, Clash-Royale-style
+energy. Red strikes, Blue defends; every round is action and reaction. First
+audience: a cybersecurity club running it live with 50+ students.
 
-The full vision spans three products — **Parry Live** (host-led classroom game,
-the MVP), **Parry RPG** (solo turn-based adventure, later), and a **platform
-layer** (accounts, orgs, scenario marketplace, LMS, real labs, later). Only Parry
-Live is in scope. The full master prompt lives at `../../../parry-master-prompt.md`
-(repo-external) and is the long-term north star.
+The platform has three pillars: **LabDuel Live** (host-led classroom mode — the
+MVP), **LabDuel Quest** (solo turn-based cyber RPG, later), and **LabDuel Studio**
+(creator/instructor tools for authoring scenarios, quests, and packs, later). Only
+LabDuel Live is in scope for Slice 1; the architecture, naming, and structured,
+versionable content model leave room for Quest and Studio without rework. The full
+master prompt (`labduel-master-prompt.md`) is the long-term north star.
 
 ## Slice 1 goal
 
@@ -120,8 +122,8 @@ safe.
 
 Economy/shop · company damage · insurance · Insider Threat + Checkmate Protocol ·
 the other team/role assignment modes · role-rotation toggle · characters/art ·
-rounds 3–9 · full host override console · Supabase adapter wiring · Parry RPG ·
-platform/accounts layer.
+rounds 3–9 · full host override console · Supabase adapter wiring · LabDuel Quest ·
+LabDuel Studio · platform/accounts layer.
 
 ## Visual identity
 
