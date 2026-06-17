@@ -1,5 +1,5 @@
 import { hostActionSchema } from "@/lib/shared/schemas";
-import { startGame, advance, forceLock } from "@/lib/engine";
+import { startGame, advance, forceLock, setInsiderThreat } from "@/lib/engine";
 import { registry } from "@/lib/server/registry";
 import { getActor } from "@/lib/server/auth";
 import { secureRng } from "@/lib/server/rng";
@@ -29,6 +29,10 @@ export async function POST(
           return advance(state, pack, now, secureRng);
         case "forceLock":
           return forceLock(state, pack, now, secureRng);
+        case "enableInsider":
+          return setInsiderThreat(state, true, now);
+        case "disableInsider":
+          return setInsiderThreat(state, false, now);
         default:
           return state;
       }

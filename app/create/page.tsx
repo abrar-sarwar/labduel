@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Logo, Button, TextInput, Eyebrow } from "@/components/ui";
+import { Logo, Button, TextInput, Eyebrow, Toggle } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { postAction } from "@/components/hooks";
 
@@ -52,6 +52,7 @@ export default function CreatePage() {
   const [roundCount, setRoundCount] = useState(2);
   const [squadSize, setSquadSize] = useState(5);
   const [roundSeconds, setRoundSeconds] = useState(90);
+  const [insiderThreat, setInsiderThreat] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,6 +65,7 @@ export default function CreatePage() {
         roundCount,
         squadSize,
         roundSeconds,
+        insiderThreat,
       });
       router.push(`/host/${code}`);
     } catch (e) {
@@ -121,6 +123,25 @@ export default function CreatePage() {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div
+            className={cn(
+              "flex items-start justify-between gap-4 rounded-xl border px-4 py-3 transition",
+              insiderThreat ? "border-red-team/40 bg-red-team/5" : "border-white/10 bg-ink-700/50"
+            )}
+          >
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-paper/90">Insider Threat</span>
+                <span className="chip border-red-team/40 bg-red-team/10 text-red-team">Hidden role</span>
+              </div>
+              <p className="mt-1 text-xs text-paper/55">
+                One Blue player secretly gets Red-aligned sabotage objectives. Needs
+                3+ Blue players. They can unlock the Checkmate Protocol.
+              </p>
+            </div>
+            <Toggle checked={insiderThreat} onChange={setInsiderThreat} label="Insider Threat" />
           </div>
         </div>
 

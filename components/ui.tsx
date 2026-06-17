@@ -137,3 +137,39 @@ export function TextInput({
     />
   );
 }
+
+// ---------------- Toggle ----------------
+
+export function Toggle({
+  checked,
+  onChange,
+  disabled,
+  label,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  disabled?: boolean;
+  label?: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={cn(
+        "relative h-7 w-12 shrink-0 rounded-full border transition disabled:opacity-50",
+        checked ? "border-gold/50 bg-gold/80" : "border-white/15 bg-white/10"
+      )}
+    >
+      <span
+        className={cn(
+          "absolute top-0.5 h-5 w-5 rounded-full bg-ink shadow transition-all",
+          checked ? "left-[22px]" : "left-0.5"
+        )}
+      />
+    </button>
+  );
+}

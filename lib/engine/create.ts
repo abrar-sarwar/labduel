@@ -31,6 +31,7 @@ export function createGameState(params: CreateGameParams): GameState {
     packId: params.packId,
     players: [],
     squads: [],
+    insiderPlayerId: null,
     roundIndex: 0,
     rounds: [],
     scores: { red: 0, blue: 0 },
@@ -65,6 +66,7 @@ export function addPlayer(state: GameState, p: AddPlayerParams): GameState {
     roleKey: null,
     connected: true,
     status,
+    insider: false,
     joinedAt: p.now,
   };
 

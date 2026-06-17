@@ -6,8 +6,14 @@ import Link from "next/link";
 import { useGameStream, usePlayerView, postAction } from "@/components/hooks";
 import { LiveBar, CenterMessage } from "@/components/liveframe";
 import { ScoreBar, CoinFlip, Countdown } from "@/components/game";
-import { MissionBrief, DebriefBlock, ScoreboardSquads, FinalBlock } from "@/components/panels";
-import { Button } from "@/components/ui";
+import {
+  MissionBrief,
+  DebriefBlock,
+  ScoreboardSquads,
+  FinalBlock,
+  HostModerationPanel,
+} from "@/components/panels";
+import { Button, Toggle } from "@/components/ui";
 import type { Phase, PublicState } from "@/lib/shared/types";
 
 function nextAction(pub: PublicState): { label: string; action: "start" | "advance" } | null {
@@ -43,7 +49,7 @@ const PHASE_HINT: Record<Phase, string> = {
 export default function HostPage() {
   const { code } = useParams<{ code: string }>();
   const { pub, status } = useGameStream(code);
-  const { role } = usePlayerView(code, pub?.rev);
+  const { role, moderation } = usePlayerView(code, pub?.rev);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -65,7 +71,9 @@ export default function HostPage() {
   const canStart = pub.phase !== "lobby" || pub.players.filter((p) => p.status === "active").length >= 2;
   const waiting = pub.players.filter((p) => p.status === "waiting");
 
-  async function act(action: "start" | "advance" | "forceLock") {
+  async function act(
+    action: "start" | "advance" | "forceLock" | "enableInsider" | "disableInsider"
+  ) {
     setBusy(true);
     setError(null);
     try {
@@ -141,11 +149,32 @@ export default function HostPage() {
                   </span>
                 ))}
               </div>
+              <div
+                className={`mt-5 flex items-start justify-between gap-4 rounded-xl border px-4 py-3 ${
+                  pub.settings.insiderThreat ? "border-red-team/40 bg-red-team/5" : "border-white/10"
+                }`}
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-paper/90">Insider Threat</span>
+                    <span className="chip border-red-team/40 bg-red-team/10 text-red-team">Hidden role</span>
+                  </div>
+                  <p className="mt-1 text-xs text-paper/55">
+                    Secretly turns one Blue player against their team. Needs 3+ Blue.
+                  </p>
+                </div>
+                <Toggle
+                  checked={pub.settings.insiderThreat}
+                  disabled={busy}
+                  onChange={(v) => act(v ? "enableInsider" : "disableInsider")}
+                  label="Insider Threat"
+                />
+              </div>
               <Button
                 onClick={() => act("start")}
                 disabled={busy || !canStart}
                 size="lg"
-                className="mt-6 w-full"
+                className="mt-4 w-full"
               >
                 {canStart ? "Start game" : "Need at least 2 players"}
               </Button>
@@ -212,6 +241,8 @@ export default function HostPage() {
               <div className="panel p-5">
                 <ScoreBar red={pub.scores.red} blue={pub.scores.blue} />
               </div>
+
+              {moderation && <HostModerationPanel moderation={moderation} />}
 
               <div className="panel p-5">
                 <p className="eyebrow mb-3">Squads</p>

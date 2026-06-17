@@ -175,6 +175,15 @@ export const PACK_01: ScenarioPack = {
           ],
         },
       },
+      insiderObjective: {
+        id: "r1-insider",
+        prompt:
+          "You're trusted on Blue, and the phishing report landed on your desk. Quietly mark it as a false positive so nobody investigates — and the lure stays live.",
+        concept: "Insider suppressing a true alert (alert tampering)",
+        doLabel: "Bury it as a false positive",
+        layLabel: "Lay low — report it honestly",
+        penalty: 40,
+      },
       debrief: {
         summary:
           "Red worked the human layer — public info to pick targets, a credible 'shared document' pretext, and a lookalike domain. Blue's job was to recognize the pattern fast.",
@@ -344,6 +353,15 @@ export const PACK_01: ScenarioPack = {
             },
           ],
         },
+      },
+      insiderObjective: {
+        id: "r2-insider",
+        prompt:
+          "An exec wants in fast and you can make it happen. Approve a 'temporary' MFA exception for their account — and conveniently forget to remove it later.",
+        concept: "Risky standing exception / quietly weakened control",
+        doLabel: "Approve the MFA exception",
+        layLabel: "Lay low — deny the exception",
+        penalty: 40,
       },
       debrief: {
         summary:

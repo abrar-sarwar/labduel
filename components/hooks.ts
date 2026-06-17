@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { PublicState, PlayerView } from "@/lib/shared/types";
+import type { PublicState, PlayerView, HostModeration } from "@/lib/shared/types";
 
 export type ConnStatus = "connecting" | "live" | "reconnecting";
 
@@ -47,6 +47,7 @@ export type SessionRole = "host" | "player" | "none" | "loading";
 export function usePlayerView(code: string, rev: number | undefined) {
   const [role, setRole] = useState<SessionRole>("loading");
   const [view, setView] = useState<PlayerView | null>(null);
+  const [moderation, setModeration] = useState<HostModeration | null>(null);
 
   const refetch = useCallback(async () => {
     try {
@@ -55,6 +56,7 @@ export function usePlayerView(code: string, rev: number | undefined) {
       const data = await res.json();
       setRole(data.role as SessionRole);
       setView(data.view ?? null);
+      setModeration(data.moderation ?? null);
     } catch {
       /* transient */
     }
@@ -64,7 +66,7 @@ export function usePlayerView(code: string, rev: number | undefined) {
     refetch();
   }, [refetch, rev]);
 
-  return { role, view, refetch };
+  return { role, view, moderation, refetch };
 }
 
 /** Live countdown to a deadline (epoch ms). Stable layout, updates 4x/sec. */

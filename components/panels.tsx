@@ -1,8 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/cn";
-import type { PublicDebrief, PublicFinal, PublicSquad, PublicRound, Team } from "@/lib/shared/types";
+import type {
+  PublicDebrief,
+  PublicFinal,
+  PublicSquad,
+  PublicRound,
+  Team,
+  InsiderView,
+  HostModeration,
+} from "@/lib/shared/types";
 import { teamClasses, teamLabel, TeamCrest } from "./game";
+import { postAction } from "./hooks";
 
 export function MissionBrief({ round }: { round: PublicRound }) {
   const c = teamClasses(round.initiative);
@@ -106,8 +116,19 @@ export function ScoreboardSquads({ squads }: { squads: PublicSquad[] }) {
 export function FinalBlock({ final }: { final: PublicFinal }) {
   const winnerTeam = final.winner === "tie" ? null : (final.winner as Team);
   const c = teamClasses(winnerTeam);
+  const checkmate = final.checkmate;
   return (
     <div className="animate-pop space-y-5 text-center">
+      {checkmate?.unlocked && (
+        <div className="mx-auto max-w-xl animate-pop rounded-xl2 border border-red-team/50 bg-red-team/10 p-5 shadow-glowred">
+          <p className="font-mono text-xs uppercase tracking-[0.4em] text-red-team">
+            ♛ Checkmate Protocol
+          </p>
+          <p className="mt-2 font-display text-2xl font-black text-red-team">
+            The insider delivered. Red seizes the win.
+          </p>
+        </div>
+      )}
       <p className="eyebrow">Final result</p>
       {final.winner === "tie" ? (
         <h1 className="font-display text-5xl font-black text-gold">It&apos;s a draw!</h1>
@@ -115,6 +136,13 @@ export function FinalBlock({ final }: { final: PublicFinal }) {
         <h1 className={cn("font-display text-5xl font-black uppercase", c.text)}>
           {teamLabel(winnerTeam!)} wins
         </h1>
+      )}
+      {checkmate?.enabled && checkmate.insiderName && (
+        <p className="text-sm text-paper/70">
+          The Insider was{" "}
+          <span className="font-display font-bold text-red-team">{checkmate.insiderName}</span>
+          {checkmate.unlocked ? " — and they pulled it off." : " — Blue held the line."}
+        </p>
       )}
       <div className="mx-auto flex max-w-sm items-center justify-center gap-8">
         <div className="text-red-team">
@@ -147,6 +175,181 @@ export function FinalBlock({ final }: { final: PublicFinal }) {
           ))}
         </ul>
       </div>
+    </div>
+  );
+}
+
+// ---------------- Insider (player-side, secret) ----------------
+
+/** Shown at role reveal: the private "you are the insider" briefing. */
+export function InsiderRevealCard() {
+  return (
+    <div className="animate-pop rounded-xl2 border border-red-team/50 bg-red-team/10 p-5 shadow-glowred">
+      <p className="font-mono text-xs uppercase tracking-[0.35em] text-red-team">
+        ◐ Eyes only
+      </p>
+      <h3 className="mt-2 font-display text-2xl font-black text-red-team">
+        You are the Insider
+      </h3>
+      <p className="mt-2 text-sm text-paper/80">
+        You&apos;re on Blue — but you secretly work for Red. Blend in, do your normal
+        tasks for cover, and quietly weaken Blue when the chance comes. Sabotage every
+        round and you can trigger the <span className="text-red-team">Checkmate Protocol</span>.
+        Tell no one.
+      </p>
+    </div>
+  );
+}
+
+/** The insider's live objective panel during a round. */
+export function InsiderPanel({
+  insider,
+  code,
+  active,
+  onActed,
+}: {
+  insider: InsiderView;
+  code: string;
+  /** true during the active phase (choice can be made) */
+  active: boolean;
+  onActed: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function choose(choice: "sabotage" | "layLow") {
+    setBusy(true);
+    setErr(null);
+    try {
+      await postAction(`/api/games/${code}/insider`, { choice });
+      onActed();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="rounded-xl2 border border-red-team/50 bg-gradient-to-b from-red-team/12 to-ink-800/60 p-5 shadow-glowred">
+      <div className="flex items-center justify-between">
+        <p className="font-mono text-xs uppercase tracking-[0.35em] text-red-team">◐ Insider · Eyes only</p>
+        <span className="chip border-red-team/40 bg-red-team/10 text-red-team">
+          Sabotage {insider.progress}/{insider.threshold}
+        </span>
+      </div>
+
+      {insider.objective ? (
+        <>
+          <p className="mt-3 font-mono text-[0.7rem] uppercase tracking-widest text-paper/45">
+            {insider.objective.concept}
+          </p>
+          <p className="mt-1 font-display text-lg font-bold leading-snug">
+            {insider.objective.prompt}
+          </p>
+
+          {active ? (
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button
+                disabled={busy}
+                onClick={() => choose("sabotage")}
+                className={cn(
+                  "strike h-11 rounded-xl font-display text-sm font-bold uppercase tracking-wide transition disabled:opacity-50",
+                  insider.sabotagedThisRound
+                    ? "bg-red-team text-white shadow-glowred"
+                    : "border border-red-team/50 bg-red-team/10 text-red-team hover:bg-red-team/20"
+                )}
+              >
+                {insider.sabotagedThisRound ? "✓ Sabotaging" : insider.objective.doLabel}
+              </button>
+              <button
+                disabled={busy}
+                onClick={() => choose("layLow")}
+                className={cn(
+                  "h-11 rounded-xl font-display text-sm font-bold uppercase tracking-wide transition disabled:opacity-50",
+                  !insider.sabotagedThisRound
+                    ? "bg-white/15 text-paper"
+                    : "border border-white/15 text-paper/70 hover:bg-white/10"
+                )}
+              >
+                {!insider.sabotagedThisRound ? "✓ Lying low" : insider.objective.layLabel}
+              </button>
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-paper/60">
+              {insider.sabotagedThisRound
+                ? "You moved on this one. Stay cool — act natural."
+                : "You stayed clean this round."}
+            </p>
+          )}
+          {err && <p className="mt-2 text-sm text-danger">{err}</p>}
+        </>
+      ) : (
+        <p className="mt-3 text-sm text-paper/60">No opening this round. Keep your cover.</p>
+      )}
+    </div>
+  );
+}
+
+// ---------------- Host moderation (host-only) ----------------
+
+export function HostModerationPanel({ moderation }: { moderation: HostModeration }) {
+  if (!moderation.insiderEnabled) return null;
+  const { checkmate } = moderation;
+  const pct = checkmate.threshold > 0 ? (checkmate.progress / checkmate.threshold) * 100 : 0;
+  return (
+    <div
+      className={cn(
+        "panel p-5",
+        checkmate.unlocked ? "border-red-team/50 shadow-glowred" : "border-red-team/25"
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-red-team">
+          ◐ Moderation · host only
+        </p>
+        {checkmate.unlocked && (
+          <span className="chip border-red-team/50 bg-red-team/15 text-red-team">Checkmate ready</span>
+        )}
+      </div>
+      <p className="mt-2 text-sm text-paper/70">
+        Insider:{" "}
+        <span className="font-display font-bold text-paper">
+          {moderation.insiderName ?? "— not assigned (need 3+ Blue)"}
+        </span>
+      </p>
+      <div className="mt-3">
+        <div className="flex items-center justify-between text-xs text-paper/55">
+          <span>Checkmate Protocol</span>
+          <span className="tabular-nums">
+            {checkmate.progress}/{checkmate.threshold} rounds sabotaged
+          </span>
+        </div>
+        <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/10">
+          <div
+            className="h-full rounded-full bg-red-team transition-[width] duration-500"
+            style={{ width: `${Math.min(100, pct)}%` }}
+          />
+        </div>
+      </div>
+      {moderation.rounds.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {moderation.rounds.map((r) => (
+            <span
+              key={r.round}
+              className={cn(
+                "rounded px-2 py-0.5 font-mono text-[0.65rem]",
+                r.sabotaged ? "bg-red-team/20 text-red-team" : "bg-white/5 text-paper/40"
+              )}
+            >
+              R{r.round} {r.sabotaged ? "✓" : "—"}
+            </span>
+          ))}
+        </div>
+      )}
+      <p className="mt-3 text-[0.7rem] text-paper/40">
+        Visible only to you. Players never see this.
+      </p>
     </div>
   );
 }

@@ -42,6 +42,11 @@ export interface Player {
   connected: boolean;
   /** "active" once placed; "waiting" for late joiners awaiting next round. */
   status: "active" | "waiting";
+  /**
+   * SERVER ONLY — never serialized to public state or to OTHER players' payloads.
+   * True for the one Blue player secretly playing as the Insider Threat.
+   */
+  insider: boolean;
   joinedAt: number;
 }
 
@@ -70,6 +75,8 @@ export interface RoundRuntime {
   submissions: Submission[];
   scored: boolean;
   roundScore: { red: number; blue: number };
+  /** SERVER ONLY — whether the Insider chose to sabotage this round. */
+  insiderSabotaged: boolean;
 }
 
 export interface AuditEntry {
@@ -91,6 +98,8 @@ export interface GameState {
   packId: string;
   players: Player[];
   squads: Squad[];
+  /** SERVER ONLY — id of the Insider player, or null. Never projected publicly. */
+  insiderPlayerId: string | null;
   roundIndex: number;
   rounds: RoundRuntime[];
   scores: { red: number; blue: number };
@@ -150,6 +159,11 @@ export interface PublicFinal {
   scores: { red: number; blue: number };
   mvpSquad: { name: string; team: Team; score: number } | null;
   recap: { round: number; title: string; takeaway: string }[];
+  /**
+   * Insider/Checkmate reveal — populated ONLY at final results (game over), so
+   * disclosing the insider's identity here is intentional and safe.
+   */
+  checkmate: { enabled: boolean; unlocked: boolean; insiderName: string | null } | null;
 }
 
 export interface PublicState {
@@ -181,6 +195,25 @@ export interface PlayerTaskView {
   points: number;
 }
 
+/**
+ * Insider-only private payload. Present ONLY in the insider player's own view;
+ * null for everyone else (and absent from public state entirely).
+ */
+export interface InsiderView {
+  /** The current round's secret objective, when one is available. */
+  objective: {
+    prompt: string;
+    concept: string;
+    doLabel: string;
+    layLabel: string;
+  } | null;
+  /** Whether the insider has chosen to sabotage the current round. */
+  sabotagedThisRound: boolean;
+  /** Hidden Checkmate progress (only the insider and host can see this). */
+  progress: number;
+  threshold: number;
+}
+
 export interface PlayerView {
   you: {
     id: string;
@@ -189,6 +222,8 @@ export interface PlayerView {
     squadId: string | null;
     role: { key: string; name: string; blurb: string; glyph: string } | null;
     status: "active" | "waiting";
+    /** Only ever true in the insider's OWN view. */
+    isInsider: boolean;
   };
   phase: Phase;
   round: {
@@ -204,4 +239,15 @@ export interface PlayerView {
   } | null;
   /** Mirror of the public debrief so the player view can show it inline. */
   debrief: PublicDebrief | null;
+  /** Non-null ONLY for the insider. */
+  insider: InsiderView | null;
+}
+
+/** Host-only moderation payload (returned only to the authenticated host). */
+export interface HostModeration {
+  insiderEnabled: boolean;
+  insiderPlayerId: string | null;
+  insiderName: string | null;
+  checkmate: { progress: number; threshold: number; unlocked: boolean };
+  rounds: { round: number; sabotaged: boolean }[];
 }

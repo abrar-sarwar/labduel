@@ -13,7 +13,12 @@ import {
   teamClasses,
 } from "@/components/game";
 import { TaskCard } from "@/components/tasks";
-import { DebriefBlock, FinalBlock } from "@/components/panels";
+import {
+  DebriefBlock,
+  FinalBlock,
+  InsiderPanel,
+  InsiderRevealCard,
+} from "@/components/panels";
 import { Button } from "@/components/ui";
 
 export default function PlayPage() {
@@ -109,6 +114,11 @@ export default function PlayPage() {
               Squad <span className={c.text}>{view?.squad?.name}</span> — your tasks
               connect with your teammates&apos;. Get ready.
             </p>
+            {view?.you.isInsider && (
+              <div className="mt-5">
+                <InsiderRevealCard />
+              </div>
+            )}
           </div>
         )}
 
@@ -144,6 +154,9 @@ export default function PlayPage() {
                 </div>
               </div>
             </div>
+            {view?.insider && (
+              <InsiderPanel insider={view.insider} code={code} active onActed={refetch} />
+            )}
             {view?.tasks?.length ? (
               view.tasks.map((t) => (
                 <TaskCard
@@ -167,6 +180,9 @@ export default function PlayPage() {
             <CenterMessage title="Time! Submissions locked">
               <p>Scoring now…</p>
             </CenterMessage>
+            {view?.insider && (
+              <InsiderPanel insider={view.insider} code={code} active={false} onActed={refetch} />
+            )}
             {view?.tasks?.map((t) => (
               <TaskCard key={t.task.id} item={t} code={code} team={team!} locked onSubmitted={refetch} />
             ))}

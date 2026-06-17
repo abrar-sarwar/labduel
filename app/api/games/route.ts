@@ -27,6 +27,7 @@ export async function POST(req: Request) {
         roundCount: input.roundCount,
         squadSize: input.squadSize,
         roundSeconds: input.roundSeconds,
+        insiderThreat: input.insiderThreat,
       },
       now: Date.now(),
     });

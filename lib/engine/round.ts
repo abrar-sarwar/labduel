@@ -75,16 +75,100 @@ export function startGame(
     throw new GameError("not_enough_players", "Need at least 2 players to start");
 
   const { players, squads } = assignTeamsAndSquads(state.players, state.settings, rng);
+
+  // Insider Threat: secretly elevate one Blue player — only with enough Blue
+  // players that it isn't obvious or crippling. Never assigned otherwise.
+  let insiderPlayerId: string | null = null;
+  let finalPlayers = players;
+  if (state.settings.insiderThreat) {
+    const blue = players.filter((p) => p.team === "blue" && p.status === "active");
+    if (blue.length >= 3) {
+      const chosen = blue[Math.floor(rng() * blue.length)];
+      insiderPlayerId = chosen.id;
+      finalPlayers = players.map((p) =>
+        p.id === chosen.id ? { ...p, insider: true } : p
+      );
+    }
+  }
+
   let next: GameState = {
     ...state,
-    players,
+    players: finalPlayers,
     squads,
+    insiderPlayerId,
     phase: "roleReveal",
     roundIndex: 0,
     rounds: [],
   };
-  next = audit(next, "host", "start", { players: active.length, squads: squads.length });
+  next = audit(next, "host", "start", {
+    players: active.length,
+    squads: squads.length,
+    insider: insiderPlayerId !== null,
+  });
   return withMeta(next, now);
+}
+
+// ---------------- Insider Threat + Checkmate ----------------
+
+/** How many sabotaged rounds Red needs to unlock Checkmate. Rare by design. */
+export function checkmateThreshold(roundCount: number): number {
+  return Math.max(2, Math.ceil(roundCount * 0.66));
+}
+
+export interface CheckmateState {
+  enabled: boolean;
+  progress: number;
+  threshold: number;
+  unlocked: boolean;
+}
+
+export function checkmateState(state: GameState): CheckmateState {
+  const enabled = state.settings.insiderThreat && state.insiderPlayerId !== null;
+  const progress = state.rounds.filter((r) => r.insiderSabotaged).length;
+  const threshold = checkmateThreshold(state.settings.roundCount);
+  return { enabled, progress, threshold, unlocked: enabled && progress >= threshold };
+}
+
+/** Toggle Insider Threat — host only, lobby only. */
+export function setInsiderThreat(
+  state: GameState,
+  enabled: boolean,
+  now: number
+): GameState {
+  if (state.phase !== "lobby")
+    throw new GameError("bad_phase", "Insider Threat can only change before the game starts");
+  return withMeta(
+    { ...state, settings: { ...state.settings, insiderThreat: enabled } },
+    now
+  );
+}
+
+/** The insider chooses to sabotage (or lay low) for the current round. */
+export function applyInsiderAction(
+  state: GameState,
+  pack: ScenarioPack,
+  playerId: string,
+  choice: "sabotage" | "layLow",
+  now: number
+): GameState {
+  if (state.phase !== "active")
+    throw new GameError("not_active", "No insider action available right now");
+  if (state.insiderPlayerId !== playerId)
+    throw new GameError("not_insider", "You are not the insider");
+
+  const round = state.rounds[state.roundIndex];
+  if (!round || round.deadline == null)
+    throw new GameError("not_active", "Round is not running");
+  if (now > round.deadline)
+    throw new GameError("expired", "Time is up for this round");
+
+  const rc = roundContentFor(pack, state.roundIndex);
+  if (!rc.insiderObjective)
+    throw new GameError("no_objective", "No insider objective this round");
+
+  const rounds = state.rounds.slice();
+  rounds[state.roundIndex] = { ...round, insiderSabotaged: choice === "sabotage" };
+  return withMeta({ ...state, rounds }, now);
 }
 
 // ---------------- Begin a round ----------------
@@ -102,6 +186,7 @@ function beginRound(state: GameState, index: number, now: number, rng: Rng): Gam
     submissions: [],
     scored: false,
     roundScore: { red: 0, blue: 0 },
+    insiderSabotaged: false,
   };
   const rounds = state.rounds.slice();
   rounds[index] = round;
@@ -116,7 +201,7 @@ function beginRound(state: GameState, index: number, now: number, rng: Rng): Gam
 
 // ---------------- Finalize (score) a round ----------------
 
-function finalizeRound(state: GameState): GameState {
+function finalizeRound(state: GameState, pack: ScenarioPack): GameState {
   const round = state.rounds[state.roundIndex];
   if (!round || round.scored) return state;
   const roundScore = { red: 0, blue: 0 };
@@ -124,6 +209,12 @@ function finalizeRound(state: GameState): GameState {
     const player = state.players.find((p) => p.id === sub.playerId);
     if (!player?.team) continue;
     roundScore[player.team] += sub.points;
+  }
+  // Hidden insider penalty: a sabotaged round quietly weakens Blue's result.
+  if (round.insiderSabotaged) {
+    const rc = pack.rounds[state.roundIndex];
+    const penalty = rc?.insiderObjective?.penalty ?? 0;
+    roundScore.blue = Math.max(0, roundScore.blue - penalty);
   }
   const rounds = state.rounds.slice();
   rounds[state.roundIndex] = { ...round, scored: true, roundScore };
@@ -164,7 +255,7 @@ export function advance(
     }
 
     case "active":
-      next = { ...finalizeRound(state), phase: "submissionLock", phaseDeadline: null };
+      next = { ...finalizeRound(state, pack), phase: "submissionLock", phaseDeadline: null };
       break;
 
     case "submissionLock":
@@ -266,7 +357,17 @@ export function applySubmission(
 
 export function computeFinal(state: GameState, pack: ScenarioPack): PublicFinal {
   const { red, blue } = state.scores;
-  const winner: Team | "tie" = red === blue ? "tie" : red > blue ? "red" : "blue";
+  let winner: Team | "tie" = red === blue ? "tie" : red > blue ? "red" : "blue";
+
+  // Checkmate Protocol: if the insider unlocked it, Red wins regardless of score.
+  const cm = checkmateState(state);
+  if (cm.unlocked) winner = "red";
+  const insiderName = state.insiderPlayerId
+    ? state.players.find((p) => p.id === state.insiderPlayerId)?.name ?? null
+    : null;
+  const checkmate = state.settings.insiderThreat
+    ? { enabled: cm.enabled, unlocked: cm.unlocked, insiderName }
+    : null;
 
   const squadScores = state.squads.map((sq) => {
     const score = state.rounds.reduce((sum, round) => {
@@ -291,5 +392,5 @@ export function computeFinal(state: GameState, pack: ScenarioPack): PublicFinal 
       return { round: r.number, title: rc?.title ?? "", takeaway: rc?.debrief.takeaway ?? "" };
     });
 
-  return { winner, scores: { red, blue }, mvpSquad, recap };
+  return { winner, scores: { red, blue }, mvpSquad, recap, checkmate };
 }

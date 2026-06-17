@@ -20,6 +20,7 @@ export const createGameSchema = z.object({
   roundCount: z.number().int().min(1).max(9).optional(),
   squadSize: z.number().int().min(3).max(6).optional(),
   roundSeconds: z.number().int().min(30).max(300).optional(),
+  insiderThreat: z.boolean().optional(),
 });
 
 export const joinGameSchema = z.object({
@@ -45,10 +46,22 @@ export const submitTaskSchema = z.object({
 
 // Host actions (no extra payload beyond auth).
 export const hostActionSchema = z.object({
-  action: z.enum(["start", "advance", "forceLock"]),
+  action: z.enum([
+    "start",
+    "advance",
+    "forceLock",
+    "enableInsider",
+    "disableInsider",
+  ]),
+});
+
+// Insider (player) action.
+export const insiderActionSchema = z.object({
+  choice: z.enum(["sabotage", "layLow"]),
 });
 
 export type CreateGameInput = z.infer<typeof createGameSchema>;
 export type JoinGameInput = z.infer<typeof joinGameSchema>;
 export type SubmitTaskInput = z.infer<typeof submitTaskSchema>;
 export type HostActionInput = z.infer<typeof hostActionSchema>;
+export type InsiderActionInput = z.infer<typeof insiderActionSchema>;

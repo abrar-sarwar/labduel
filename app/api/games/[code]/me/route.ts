@@ -1,6 +1,6 @@
 import { registry } from "@/lib/server/registry";
 import { getActor } from "@/lib/server/auth";
-import { toPlayerView } from "@/lib/engine";
+import { toPlayerView, hostModeration } from "@/lib/engine";
 import { ok, fail } from "@/lib/server/http";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,8 @@ export async function GET(
   if (!game) return fail(404, "game_not_found", "No game with that code");
 
   const actor = await getActor(code);
-  if (actor.role === "host") return ok({ role: "host" });
+  // Host-only moderation: insider identity + live Checkmate progress.
+  if (actor.role === "host") return ok({ role: "host", moderation: hostModeration(game) });
   if (actor.role === "player") {
     const view = toPlayerView(game, registry.packFor(game), actor.playerId);
     return ok({ role: "player", view });

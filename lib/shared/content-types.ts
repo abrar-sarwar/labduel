@@ -54,6 +54,21 @@ export interface SideMission {
   tasks: TaskDef[];
 }
 
+/**
+ * The secret objective offered to the Insider during a round. Simulated and safe:
+ * it describes a conceptual insider-threat action (weakening a control), never a
+ * real-world harmful instruction. PRIVATE — only ever reaches the insider + host.
+ */
+export interface InsiderObjective {
+  id: string;
+  prompt: string;
+  concept: string;
+  doLabel: string;
+  layLabel: string;
+  /** Blue score penalty applied (hidden) if the insider sabotages this round. */
+  penalty: number;
+}
+
 export interface RoundContent {
   number: number;
   id: string;
@@ -67,6 +82,8 @@ export interface RoundContent {
     blue: string;
   };
   sides: Record<Team, SideMission>;
+  /** Optional secret objective for the Insider this round. */
+  insiderObjective?: InsiderObjective;
   debrief: {
     summary: string;
     red: string;

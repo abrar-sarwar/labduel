@@ -118,9 +118,30 @@ Each with: mission brief, Red + Blue squad missions (role sub-tasks), scoring, a
 short debrief. Authored as reviewable TypeScript content packs, kept abstract and
 safe.
 
+## Insider Threat + Checkmate Protocol (BUILT — Slice 1.1)
+
+Host toggle (create-time or in-lobby). When on and there are **≥3 Blue players**,
+the server secretly elevates **one** Blue player to Insider at start; with fewer
+Blue players none is assigned. The Insider keeps their normal Blue role/tasks for
+cover and privately receives **one safe, simulated sabotage objective per round**
+(e.g. bury a phishing report as a false positive; approve a risky MFA exception)
+with a **Do it / Lay low** choice.
+
+- Sabotaging a round advances the hidden **Checkmate Protocol** meter and applies a
+  *modest* hidden Blue score penalty (never a knockout).
+- **Checkmate unlocks** only at `progress ≥ ceil(rounds × 0.66)` (= every round for
+  a 2-round game) → rare and dramatic. If unlocked, **Red wins regardless of score**.
+- **Hidden-data rules (engine-enforced + tested):** the per-player `insider` flag,
+  the insider's identity, and objective text never appear in public state, the
+  projector, or any other player's payload. They reach only (a) the insider's own
+  private view and (b) a **host-only moderation view** (`/me` for the host).
+  Identity is revealed publicly only at Final Results.
+- That the *mode* is enabled is public (like knowing there's an impostor); only the
+  identity is secret.
+
 ## Explicitly OUT of Slice 1 (designed-for, not built)
 
-Economy/shop · company damage · insurance · Insider Threat + Checkmate Protocol ·
+Economy/shop · company damage · insurance ·
 the other team/role assignment modes · role-rotation toggle · characters/art ·
 rounds 3–9 · full host override console · Supabase adapter wiring · LabDuel Quest ·
 LabDuel Studio · platform/accounts layer.

@@ -10,6 +10,8 @@ import type {
   PublicDebrief,
   PlayerView,
   PlayerTaskView,
+  InsiderView,
+  HostModeration,
   Phase,
 } from "../shared/types";
 import type { ScenarioPack } from "../shared/content-types";
@@ -20,10 +22,13 @@ import {
   tasksForPlayer,
   expectedSubmissionCount,
   computeFinal,
+  checkmateState,
 } from "./round";
 
 const SHOW_ROUND: Phase[] = ["roundBriefing", "active", "submissionLock"];
 const SHOW_TASKS: Phase[] = ["active", "submissionLock", "debrief"];
+// Phases where the insider may have a live objective panel.
+const INSIDER_ACTIVE: Phase[] = ["roundBriefing", "active", "submissionLock", "debrief"];
 
 function squadScores(state: GameState): Map<string, number> {
   const totals = new Map<string, number>();
@@ -196,6 +201,30 @@ export function toPlayerView(
     };
   }
 
+  // Insider payload — ONLY ever built for the insider's own view.
+  let insider: InsiderView | null = null;
+  if (player.insider && state.insiderPlayerId === player.id) {
+    const cm = checkmateState(state);
+    let objective: InsiderView["objective"] = null;
+    if (runtime && INSIDER_ACTIVE.includes(state.phase)) {
+      const rc = safeRound(pack, state.roundIndex);
+      if (rc?.insiderObjective) {
+        objective = {
+          prompt: rc.insiderObjective.prompt,
+          concept: rc.insiderObjective.concept,
+          doLabel: rc.insiderObjective.doLabel,
+          layLabel: rc.insiderObjective.layLabel,
+        };
+      }
+    }
+    insider = {
+      objective,
+      sabotagedThisRound: runtime?.insiderSabotaged ?? false,
+      progress: cm.progress,
+      threshold: cm.threshold,
+    };
+  }
+
   return {
     you: {
       id: player.id,
@@ -206,12 +235,30 @@ export function toPlayerView(
         ? { key: role.key, name: role.name, blurb: role.blurb, glyph: role.glyph }
         : null,
       status: player.status,
+      // Only ever true in the insider's OWN view (this projection is per-player).
+      isInsider: player.insider && state.insiderPlayerId === player.id,
     },
     phase: state.phase,
     round,
     tasks,
     squad,
     debrief,
+    insider,
+  };
+}
+
+/** Host-only moderation view: insider identity + live Checkmate progress. */
+export function hostModeration(state: GameState): HostModeration {
+  const cm = checkmateState(state);
+  const insiderName = state.insiderPlayerId
+    ? state.players.find((p) => p.id === state.insiderPlayerId)?.name ?? null
+    : null;
+  return {
+    insiderEnabled: state.settings.insiderThreat,
+    insiderPlayerId: state.insiderPlayerId,
+    insiderName,
+    checkmate: { progress: cm.progress, threshold: cm.threshold, unlocked: cm.unlocked },
+    rounds: state.rounds.map((r) => ({ round: r.number, sabotaged: r.insiderSabotaged })),
   };
 }
 
