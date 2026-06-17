@@ -167,11 +167,27 @@ the last round) with a discussion timer. Each side has a **shared team budget**.
   voting is deferred. Buying is host-authorized server-side and only valid during
   the Shop phase. Budgets, owned upgrades, and company damage are all public.
 
+## Host override console (BUILT — Slice 1.4)
+
+The host can fix messy real-room situations without restarting:
+
+- **Reassign** any active player's team / squad / role. The engine reseats them
+  (removed from the old squad, added to exactly one new squad), validates the role
+  belongs to the team and the squad is on that team, and — if the player was the
+  Insider and is moved off Blue — dissolves the secret role.
+- **Place late joiners** (the `waiting` state): pick team, squad, and role, and
+  choose **Join now** (enter the current round) or **next round** (default while a
+  round is live — they're activated and seated automatically at the next
+  `beginRound`).
+- Host-only (`/api/games/[code]/override`), surfaced in the host dashboard as a
+  "Roster & overrides" panel: late joiners always surface with an alert badge; the
+  full editable roster (grouped by team) expands on demand.
+
 ## Explicitly OUT of Slice 1 (designed-for, not built)
 
-Team voting on purchases ·
-the other team/role assignment modes · role-rotation toggle · characters/art ·
-full host override console · Supabase adapter wiring · LabDuel Quest ·
+Team voting on purchases · the other team/role assignment modes (student-choose,
+host-assign-at-start, hidden random roles) · role-rotation toggle · manual score
+adjustment · characters/art · Supabase adapter wiring · LabDuel Quest ·
 LabDuel Studio · platform/accounts layer.
 
 ## Visual identity

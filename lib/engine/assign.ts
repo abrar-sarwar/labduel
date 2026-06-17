@@ -108,14 +108,28 @@ export function placeWaitingPlayers(
   const updatedById = new Map<string, Player>();
 
   for (const p of waiting) {
-    const team: Team = teamSize("red") <= teamSize("blue") ? "red" : "blue";
+    // Honor a host's pre-assignment (team + squad already chosen): just activate
+    // them in place. Otherwise auto-balance onto the smaller team's smallest squad.
+    const preassigned =
+      p.team != null &&
+      p.squadId != null &&
+      squadList.some((s) => s.id === p.squadId && s.team === p.team);
+
+    const team: Team = preassigned
+      ? (p.team as Team)
+      : teamSize("red") <= teamSize("blue")
+        ? "red"
+        : "blue";
     const roles = rolesForTeam(team);
-    const target = squadList
-      .filter((s) => s.team === team)
-      .sort((a, b) => a.memberIds.length - b.memberIds.length)[0];
+    const target = preassigned
+      ? squadList.find((s) => s.id === p.squadId)!
+      : squadList
+          .filter((s) => s.team === team)
+          .sort((a, b) => a.memberIds.length - b.memberIds.length)[0];
     if (!target) continue;
-    const roleKey = roles[target.memberIds.length % roles.length].key;
-    target.memberIds.push(p.id);
+    const roleKey =
+      preassigned && p.roleKey ? p.roleKey : roles[target.memberIds.length % roles.length].key;
+    if (!target.memberIds.includes(p.id)) target.memberIds.push(p.id);
     updatedById.set(p.id, {
       ...p,
       team,

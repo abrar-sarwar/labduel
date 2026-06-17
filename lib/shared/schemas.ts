@@ -66,6 +66,25 @@ export const buyUpgradeSchema = z.object({
   upgradeId: z.string().min(1),
 });
 
+// Host override console (host-authorized).
+export const overrideSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("reassign"),
+    playerId: z.string().min(1),
+    team: z.enum(["red", "blue"]).optional(),
+    squadId: z.string().min(1).optional(),
+    roleKey: z.string().min(1).optional(),
+  }),
+  z.object({
+    kind: z.literal("assignWaiting"),
+    playerId: z.string().min(1),
+    team: z.enum(["red", "blue"]),
+    squadId: z.string().min(1).optional(),
+    roleKey: z.string().min(1).optional(),
+    joinNow: z.boolean().optional(),
+  }),
+]);
+
 export type CreateGameInput = z.infer<typeof createGameSchema>;
 export type JoinGameInput = z.infer<typeof joinGameSchema>;
 export type SubmitTaskInput = z.infer<typeof submitTaskSchema>;

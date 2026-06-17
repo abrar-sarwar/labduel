@@ -15,6 +15,7 @@ import {
   ShopBoard,
   CompanyDamageMeter,
 } from "@/components/panels";
+import { OverrideConsole } from "@/components/override";
 import { Button, Toggle } from "@/components/ui";
 import type { Phase, PublicState } from "@/lib/shared/types";
 
@@ -74,7 +75,6 @@ export default function HostPage() {
 
   const na = nextAction(pub);
   const canStart = pub.phase !== "lobby" || pub.players.filter((p) => p.status === "active").length >= 2;
-  const waiting = pub.players.filter((p) => p.status === "waiting");
 
   async function act(
     action: "start" | "advance" | "forceLock" | "enableInsider" | "disableInsider"
@@ -280,21 +280,7 @@ export default function HostPage() {
                 <ScoreboardSquads squads={pub.squads} />
               </div>
 
-              {waiting.length > 0 && (
-                <div className="panel border-warn/30 bg-warn/5 p-5">
-                  <p className="font-display text-sm font-bold uppercase text-warn">
-                    {waiting.length} late joiner{waiting.length > 1 ? "s" : ""}
-                  </p>
-                  <p className="mt-1 text-xs text-paper/60">
-                    Auto-placed onto squads at the next round.
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {waiting.map((p) => (
-                      <span key={p.id} className="rounded-full bg-white/5 px-2.5 py-1 text-xs">{p.name}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <OverrideConsole pub={pub} code={code} onChange={() => {}} />
             </div>
           </div>
         )}
