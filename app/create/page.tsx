@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Logo, Button, TextInput, Eyebrow, Toggle } from "@/components/ui";
+import { Logo, Button, TextInput, Eyebrow, Toggle, Segmented } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { postAction } from "@/components/hooks";
 
@@ -52,6 +52,8 @@ export default function CreatePage() {
   const [roundCount, setRoundCount] = useState(9);
   const [squadSize, setSquadSize] = useState(5);
   const [roundSeconds, setRoundSeconds] = useState(90);
+  const [teamMode, setTeamMode] = useState<"auto" | "choose" | "host">("auto");
+  const [roleMode, setRoleMode] = useState<"random" | "hidden" | "choose">("random");
   const [insiderThreat, setInsiderThreat] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +67,8 @@ export default function CreatePage() {
         roundCount,
         squadSize,
         roundSeconds,
+        teamMode,
+        roleMode,
         insiderThreat,
       });
       router.push(`/host/${code}`);
@@ -124,6 +128,46 @@ export default function CreatePage() {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="rounded-xl border border-white/10 bg-ink-700/50 px-4 py-3">
+            <span className="text-sm text-paper/80">Teams</span>
+            <div className="mt-2">
+              <Segmented
+                value={teamMode}
+                onChange={setTeamMode}
+                options={[
+                  { value: "auto", label: "Auto" },
+                  { value: "choose", label: "Players pick" },
+                  { value: "host", label: "Host assigns" },
+                ]}
+              />
+            </div>
+            <p className="mt-2 text-xs text-paper/45">
+              {teamMode === "auto" && "We split the room into even teams for you."}
+              {teamMode === "choose" && "Players pick Red or Blue in the lobby."}
+              {teamMode === "host" && "You assign players to teams in the lobby."}
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-white/10 bg-ink-700/50 px-4 py-3">
+            <span className="text-sm text-paper/80">Roles</span>
+            <div className="mt-2">
+              <Segmented
+                value={roleMode}
+                onChange={setRoleMode}
+                options={[
+                  { value: "random", label: "Random" },
+                  { value: "hidden", label: "Hidden" },
+                  { value: "choose", label: "Players pick" },
+                ]}
+              />
+            </div>
+            <p className="mt-2 text-xs text-paper/45">
+              {roleMode === "random" && "Random roles that everyone can see."}
+              {roleMode === "hidden" && "Random roles, but each player only sees their own."}
+              {roleMode === "choose" && "Players claim a role when roles are revealed."}
+            </p>
           </div>
 
           <div

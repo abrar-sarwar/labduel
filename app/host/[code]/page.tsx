@@ -90,6 +90,14 @@ export default function HostPage() {
     }
   }
 
+  async function lobbySetTeam(playerId: string, team: "red" | "blue") {
+    try {
+      await postAction(`/api/games/${code}/lobby`, { kind: "setTeam", playerId, team });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not assign team");
+    }
+  }
+
   function copyJoin() {
     const url = `${window.location.origin}/join?code=${code}`;
     navigator.clipboard?.writeText(url);
@@ -141,19 +149,57 @@ export default function HostPage() {
                 <p className="eyebrow">In the lobby</p>
                 <span className="font-mono text-xs text-paper/50">{pub.playerCount} joined</span>
               </div>
-              <div className="mt-4 flex min-h-[120px] flex-wrap content-start gap-2">
-                {pub.players.length === 0 && (
-                  <p className="text-sm text-paper/40">Waiting for players to join…</p>
-                )}
-                {pub.players.map((p) => (
-                  <span
-                    key={p.id}
-                    className="animate-pop rounded-full border border-white/12 bg-ink-700/60 px-3 py-1.5 text-sm"
-                  >
-                    {p.name}
-                  </span>
-                ))}
-              </div>
+              {pub.settings.teamMode === "auto" ? (
+                <div className="mt-4 flex min-h-[120px] flex-wrap content-start gap-2">
+                  {pub.players.length === 0 && (
+                    <p className="text-sm text-paper/40">Waiting for players to join…</p>
+                  )}
+                  {pub.players.map((p) => (
+                    <span
+                      key={p.id}
+                      className="animate-pop rounded-full border border-white/12 bg-ink-700/60 px-3 py-1.5 text-sm"
+                    >
+                      {p.name}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-4 min-h-[120px] space-y-1.5">
+                  {pub.players.length === 0 && (
+                    <p className="text-sm text-paper/40">Waiting for players to join…</p>
+                  )}
+                  {pub.players.map((p) => (
+                    <div
+                      key={p.id}
+                      className="flex items-center justify-between gap-2 rounded-lg border border-white/10 bg-ink-700/40 px-3 py-1.5"
+                    >
+                      <span className="text-sm">{p.name}</span>
+                      <div className="flex gap-1">
+                        {(["red", "blue"] as const).map((t) => {
+                          const on = p.team === t;
+                          const tc = t === "red" ? "bg-red-team text-white" : "bg-blue-team text-white";
+                          return (
+                            <button
+                              key={t}
+                              onClick={() => lobbySetTeam(p.id, t)}
+                              className={`rounded-md px-2 py-1 font-display text-[0.65rem] font-bold uppercase transition ${
+                                on ? tc : "border border-white/15 text-paper/50 hover:bg-white/10"
+                              }`}
+                            >
+                              {t}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                  <p className="pt-1 text-xs text-paper/45">
+                    {pub.settings.teamMode === "choose"
+                      ? "Players pick their own side; you can override here."
+                      : "Tap Red or Blue to assign each player."}
+                  </p>
+                </div>
+              )}
               <div
                 className={`mt-5 flex items-start justify-between gap-4 rounded-xl border px-4 py-3 ${
                   pub.settings.insiderThreat ? "border-red-team/40 bg-red-team/5" : "border-white/10"

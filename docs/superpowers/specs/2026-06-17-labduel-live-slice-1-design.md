@@ -183,12 +183,25 @@ The host can fix messy real-room situations without restarting:
   "Roster & overrides" panel: late joiners always surface with an alert badge; the
   full editable roster (grouped by team) expands on demand.
 
+## Assignment modes (BUILT, Slice 1.5)
+
+Host picks how teams and roles are handed out (create screen).
+
+- **Team mode:** `auto` (server balances), `choose` (players pick Red/Blue in the
+  lobby; host can override on the lobby roster), `host` (host assigns each player on
+  the lobby roster). Start is blocked if everyone piles onto one side.
+- **Role mode:** `random` (visible random, the default), `hidden` (random, but each
+  player sees ONLY their own role; the public channel/projector never carries any
+  role), `choose` (players claim a role for their team during Role Reveal;
+  unclaimed roles are backfilled round-robin when the round begins).
+- Lobby/role-reveal actions go through `/api/games/[code]/lobby`: players act on
+  themselves (`pickTeam`, `pickRole`); the host assigns teams (`setTeam`).
+
 ## Explicitly OUT of Slice 1 (designed-for, not built)
 
-Team voting on purchases · the other team/role assignment modes (student-choose,
-host-assign-at-start, hidden random roles) · role-rotation toggle · manual score
-adjustment · characters/art · Supabase adapter wiring · LabDuel Quest ·
-LabDuel Studio · platform/accounts layer.
+Team voting on purchases · role-rotation toggle · manual score adjustment ·
+characters/art · Supabase adapter wiring · LabDuel Quest · LabDuel Studio ·
+platform/accounts layer.
 
 ## Visual identity
 

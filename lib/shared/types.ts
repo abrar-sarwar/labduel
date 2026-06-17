@@ -15,6 +15,16 @@ export type Phase =
   | "shop"
   | "finalResults";
 
+/** How players end up on Red/Blue. */
+export type TeamMode = "auto" | "choose" | "host";
+/**
+ * How roles are handed out:
+ *  - "random": visible random roles (everyone sees everyone's role)
+ *  - "hidden": random roles, but each player sees only their OWN role
+ *  - "choose": players claim a role during Role Reveal
+ */
+export type RoleMode = "random" | "hidden" | "choose";
+
 export interface GameSettings {
   roundCount: number;
   /** Target squad size used by auto-balance. */
@@ -23,7 +33,8 @@ export interface GameSettings {
   roundSeconds: number;
   /** Discussion timer (seconds) for the between-rounds Shop phase. */
   shopSeconds: number;
-  /** Designed-for; always false in Slice 1. */
+  teamMode: TeamMode;
+  roleMode: RoleMode;
   insiderThreat: boolean;
 }
 
@@ -32,6 +43,8 @@ export const DEFAULT_SETTINGS: GameSettings = {
   squadSize: 5,
   roundSeconds: 90,
   shopSeconds: 75,
+  teamMode: "auto",
+  roleMode: "random",
   insiderThreat: false,
 };
 

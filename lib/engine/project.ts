@@ -103,7 +103,8 @@ export function toPublicState(state: GameState, pack: ScenarioPack): PublicState
       name: p.name,
       team: p.team,
       squadId: p.squadId,
-      roleKey: p.roleKey,
+      // Hidden-role mode: never expose roles on the shared channel.
+      roleKey: state.settings.roleMode === "hidden" ? null : p.roleKey,
       connected: p.connected,
       status: p.status,
     })),
@@ -172,7 +173,9 @@ export function toPlayerView(
         name: sq.name,
         members: sq.memberIds.map((id) => {
           const m = state.players.find((p) => p.id === id);
-          const mRole = m?.roleKey ? getRole(m.roleKey) : null;
+          // Hidden-role mode: a player sees only their OWN role, not teammates'.
+          const showRole = state.settings.roleMode !== "hidden" || id === playerId;
+          const mRole = showRole && m?.roleKey ? getRole(m.roleKey) : null;
           let done = false;
           if (m && rc && runtime) {
             const need = tasksForPlayer(rc, m);

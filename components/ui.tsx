@@ -138,6 +138,35 @@ export function TextInput({
   );
 }
 
+// ---------------- Segmented control ----------------
+
+export function Segmented<T extends string>({
+  value,
+  options,
+  onChange,
+}: {
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="grid gap-1 rounded-xl border border-white/10 bg-ink-700/50 p-1" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
+      {options.map((o) => (
+        <button
+          key={o.value}
+          onClick={() => onChange(o.value)}
+          className={cn(
+            "rounded-lg py-2 font-display text-xs font-bold uppercase tracking-wide transition",
+            value === o.value ? "bg-gold text-ink" : "text-paper/65 hover:bg-white/5"
+          )}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ---------------- Toggle ----------------
 
 export function Toggle({

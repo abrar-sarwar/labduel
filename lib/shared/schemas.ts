@@ -20,8 +20,17 @@ export const createGameSchema = z.object({
   roundCount: z.number().int().min(1).max(9).optional(),
   squadSize: z.number().int().min(3).max(6).optional(),
   roundSeconds: z.number().int().min(30).max(300).optional(),
+  teamMode: z.enum(["auto", "choose", "host"]).optional(),
+  roleMode: z.enum(["random", "hidden", "choose"]).optional(),
   insiderThreat: z.boolean().optional(),
 });
+
+// Lobby / role-reveal actions.
+export const lobbyActionSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("pickTeam"), team: z.enum(["red", "blue"]) }),
+  z.object({ kind: z.literal("pickRole"), roleKey: z.string().min(1) }),
+  z.object({ kind: z.literal("setTeam"), playerId: z.string().min(1), team: z.enum(["red", "blue"]) }),
+]);
 
 export const joinGameSchema = z.object({
   code: roomCodeSchema,

@@ -32,7 +32,12 @@ export interface AssignmentResult {
 }
 
 /**
- * Assign all `active`/`waiting` players to teams, squads and roles.
+ * Assign all active players to teams, squads and roles, honoring the settings:
+ *  - teamMode "auto": everyone is balanced across Red/Blue.
+ *  - teamMode "choose"/"host": players who already picked a team keep it; anyone
+ *    still unassigned is balanced onto the smaller side.
+ *  - roleMode "random"/"hidden": roles assigned round-robin.
+ *  - roleMode "choose": roles left null (players claim them during Role Reveal).
  * Returns new player objects (immutably) and the squad list.
  */
 export function assignTeamsAndSquads(
@@ -45,11 +50,20 @@ export function assignTeamsAndSquads(
     rng
   );
 
-  // Alternate assignment keeps team sizes within one of each other.
   const red: Player[] = [];
   const blue: Player[] = [];
-  pool.forEach((p, i) => (i % 2 === 0 ? red : blue).push(p));
+  const unassigned: Player[] = [];
+  for (const p of pool) {
+    if (p.team === "red") red.push(p);
+    else if (p.team === "blue") blue.push(p);
+    else unassigned.push(p);
+  }
+  // Balance the leftovers onto whichever side is smaller.
+  for (const p of unassigned) {
+    (red.length <= blue.length ? red : blue).push(p);
+  }
 
+  const assignRoles = settings.roleMode !== "choose";
   const squads: Squad[] = [];
   const updatedById = new Map<string, Player>();
 
@@ -72,7 +86,7 @@ export function assignTeamsAndSquads(
           ...p,
           team,
           squadId,
-          roleKey: roles[ri % roles.length].key,
+          roleKey: assignRoles ? roles[ri % roles.length].key : null,
           status: "active",
         });
       });

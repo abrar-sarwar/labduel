@@ -3,7 +3,8 @@
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
-import { useGameStream, usePlayerView } from "@/components/hooks";
+import { useGameStream, usePlayerView, postAction } from "@/components/hooks";
+import { BLUE_ROLES, RED_ROLES } from "@/lib/shared/roles";
 import { LiveBar, CenterMessage } from "@/components/liveframe";
 import {
   RoleCard,
@@ -27,6 +28,15 @@ export default function PlayPage() {
   const { code } = useParams<{ code: string }>();
   const { pub, status } = useGameStream(code);
   const { role, view, refetch } = usePlayerView(code, pub?.rev, true);
+
+  const lobbyAction = async (body: object) => {
+    try {
+      await postAction(`/api/games/${code}/lobby`, body);
+      refetch();
+    } catch {
+      /* surfaced via state on next tick */
+    }
+  };
 
   if (!pub) {
     return (
@@ -96,22 +106,86 @@ export default function PlayPage() {
 
         {/* LOBBY */}
         {pub.phase === "lobby" && !waiting && (
-          <CenterMessage title="You're in the lobby">
-            <p>{pub.playerCount} players ready. Waiting for the host to start…</p>
-            <div className="mt-4 inline-flex animate-pulse items-center gap-2 text-gold">
-              <span className="h-2 w-2 rounded-full bg-gold" />
-              <span className="font-mono text-xs uppercase tracking-widest">Standby</span>
-            </div>
-          </CenterMessage>
+          <>
+            {pub.settings.teamMode === "choose" && !you?.team ? (
+              <div className="animate-rise text-center">
+                <h2 className="font-display text-2xl font-black">Pick your side</h2>
+                <p className="mt-1 text-sm text-paper/60">Choose where you&apos;ll fight.</p>
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => lobbyAction({ kind: "pickTeam", team: "red" })}
+                    className="rounded-xl2 border border-red-team/50 bg-red-team/10 py-8 font-display text-2xl font-black uppercase text-red-team transition hover:bg-red-team/20"
+                  >
+                    Red
+                  </button>
+                  <button
+                    onClick={() => lobbyAction({ kind: "pickTeam", team: "blue" })}
+                    className="rounded-xl2 border border-blue-team/50 bg-blue-team/10 py-8 font-display text-2xl font-black uppercase text-blue-team transition hover:bg-blue-team/20"
+                  >
+                    Blue
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <CenterMessage title="You're in the lobby">
+                {you?.team ? (
+                  <p>
+                    You picked <span className={c.text}>{you.team === "red" ? "Red" : "Blue"}</span>.
+                    Waiting for the host to start…
+                  </p>
+                ) : (
+                  <p>{pub.playerCount} players ready. Waiting for the host to start…</p>
+                )}
+                {pub.settings.teamMode === "choose" && you?.team && (
+                  <button onClick={() => lobbyAction({ kind: "pickTeam", team: you.team === "red" ? "blue" : "red" })} className="mt-3 text-xs text-paper/50 underline">
+                    Switch side
+                  </button>
+                )}
+                <div className="mt-4 inline-flex animate-pulse items-center gap-2 text-gold">
+                  <span className="h-2 w-2 rounded-full bg-gold" />
+                  <span className="font-mono text-xs uppercase tracking-widest">Standby</span>
+                </div>
+              </CenterMessage>
+            )}
+          </>
         )}
 
         {/* ROLE REVEAL */}
-        {pub.phase === "roleReveal" && you?.role && team && !waiting && (
+        {pub.phase === "roleReveal" && team && !waiting && (
           <div className="animate-pop">
-            <p className="mb-3 text-center font-mono text-xs uppercase tracking-[0.3em] text-paper/50">
-              Your role this round
-            </p>
-            <RoleCard role={you.role} team={team} />
+            {pub.settings.roleMode === "choose" && (
+              <div className="mb-5">
+                <p className="mb-2 text-center font-mono text-xs uppercase tracking-[0.3em] text-paper/50">
+                  Claim your role
+                </p>
+                <div className="grid gap-2">
+                  {(team === "blue" ? BLUE_ROLES : RED_ROLES).map((r) => {
+                    const mine = view?.you.role?.key === r.key;
+                    return (
+                      <button
+                        key={r.key}
+                        onClick={() => lobbyAction({ kind: "pickRole", roleKey: r.key })}
+                        className={cn(
+                          "rounded-xl border px-4 py-3 text-left transition",
+                          mine ? cn(c.border, c.soft) : "border-white/12 bg-ink-700/40 hover:bg-ink-700"
+                        )}
+                      >
+                        <span className={cn("font-display font-bold", mine && c.text)}>{r.name}</span>
+                        <span className="ml-2 text-xs text-paper/55">{r.blurb}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {you?.role && (
+              <>
+                <p className="mb-3 text-center font-mono text-xs uppercase tracking-[0.3em] text-paper/50">
+                  Your role this round
+                </p>
+                <RoleCard role={you.role} team={team} />
+              </>
+            )}
             <p className="mt-4 text-center text-sm text-paper/60">
               Squad <span className={c.text}>{view?.squad?.name}</span>, your tasks
               connect with your teammates&apos;. Get ready.

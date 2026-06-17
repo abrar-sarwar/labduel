@@ -13,6 +13,7 @@ import type { ScenarioPack, RoundContent, TaskDef } from "../shared/content-type
 import type { Rng } from "./rng";
 import { validateAnswer, scoreSubmission } from "./scoring";
 import { assignTeamsAndSquads, placeWaitingPlayers } from "./assign";
+import { rolesForTeam } from "../shared/roles";
 import { getUpgrade } from "../content/upgrades";
 
 const SHOP_BASE_INCOME = 500;
@@ -29,6 +30,22 @@ export class GameError extends Error {
 
 function flip(rng: Rng): Team {
   return rng() < 0.5 ? "red" : "blue";
+}
+
+/**
+ * Fill in a role for any active player who still has none (e.g. didn't claim one
+ * in roleMode "choose"). Roles are spread round-robin within each squad.
+ */
+export function fillMissingRoles(state: GameState): GameState {
+  const squadIndex = new Map<string, number>();
+  const players = state.players.map((p) => {
+    if (p.status !== "active" || !p.team || p.roleKey || !p.squadId) return p;
+    const roles = rolesForTeam(p.team);
+    const i = squadIndex.get(p.squadId) ?? 0;
+    squadIndex.set(p.squadId, i + 1);
+    return { ...p, roleKey: roles[i % roles.length].key };
+  });
+  return { ...state, players };
 }
 
 export function roundContentFor(
@@ -81,6 +98,12 @@ export function startGame(
     throw new GameError("not_enough_players", "Need at least 2 players to start");
 
   const { players, squads } = assignTeamsAndSquads(state.players, state.settings, rng);
+
+  // With student-choose / host-assign teams, everyone could pile onto one side.
+  const redCount = players.filter((p) => p.team === "red" && p.status === "active").length;
+  const blueCount = players.filter((p) => p.team === "blue" && p.status === "active").length;
+  if (redCount === 0 || blueCount === 0)
+    throw new GameError("unbalanced", "Both sides need at least one player. Rebalance teams first.");
 
   // Insider Threat: secretly elevate one Blue player, only with enough Blue
   // players that it isn't obvious or crippling. Never assigned otherwise.
@@ -334,7 +357,8 @@ export function advance(
       throw new GameError("bad_phase", "Use start to leave the lobby");
 
     case "roleReveal":
-      next = beginRound(state, 0, now, rng);
+      // Backfill any roles players didn't claim (roleMode "choose").
+      next = beginRound(fillMissingRoles(state), 0, now, rng);
       break;
 
     case "roundBriefing": {
