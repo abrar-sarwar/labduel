@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-ink text-paper font-sans antialiased;
+    background-image:
+      radial-gradient(circle at 12% -10%, rgba(61, 139, 255, 0.16), transparent 42%),
+      radial-gradient(circle at 88% 0%, rgba(255, 77, 94, 0.16), transparent 42%),
+      radial-gradient(circle at 50% 120%, rgba(246, 183, 60, 0.08), transparent 50%);
+    background-attachment: fixed;
+  }
+
+  /* Tactical grid + grain atmosphere */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(circle at 50% 30%, black, transparent 85%);
+  }
+
+  h1, h2, h3, h4, .font-display {
+    @apply font-display tracking-tight;
+    font-stretch: 125%;
+  }
+
+  ::selection {
+    background: rgba(246, 183, 60, 0.35);
+  }
+}
+
+@layer components {
+  /* The "ops board" panel — light surface on the dark tactical base */
+  .panel {
+    @apply rounded-xl2 border border-white/10 bg-ink-800/80 backdrop-blur-sm;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
+      0 20px 60px -30px rgba(0, 0, 0, 0.85);
+  }
+  .panel-paper {
+    @apply rounded-xl2 bg-paper text-ink;
+    box-shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Wide tactical eyebrow label */
+  .eyebrow {
+    @apply font-mono text-[0.68rem] uppercase tracking-[0.34em] text-paper/55;
+  }
+
+  /* Diagonal strike accent (the "parry") */
+  .strike {
+    position: relative;
+    overflow: hidden;
+  }
+  .strike::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 40%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.18),
+      transparent
+    );
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  .strike:hover::after {
+    animation: slash 0.7s ease-in both;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[0.7rem] uppercase tracking-widest;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .bg-grid-fade {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .perspective {
+    perspective: 900px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+}
