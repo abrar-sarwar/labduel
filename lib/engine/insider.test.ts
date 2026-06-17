@@ -125,19 +125,24 @@ describe("insider action + checkmate", () => {
     expect(checkmateState(state).progress).toBe(1);
   });
 
+  // Advance until a target phase (robust to the Shop phase inserted between rounds).
+  function advanceUntil(state: GameState, phase: string, seed: number): GameState {
+    let guard = 0;
+    while (state.phase !== phase && guard++ < 30) {
+      state = advance(state, PACK_01, state.updatedAt + 50, seededRng(seed));
+    }
+    return state;
+  }
+
   it("unlocks Checkmate and flips the win to Red when every round is sabotaged", () => {
     let state = startGame(makeGame(10, true), PACK_01, 2000, seededRng(7));
-    let t = 2100;
     for (let r = 0; r < 2; r++) {
-      state = advance(state, PACK_01, (t += 50), seededRng(7)); // briefing
-      state = advance(state, PACK_01, (t += 50), seededRng(7)); // active
-      state = applyInsiderAction(state, PACK_01, state.insiderPlayerId!, "sabotage", (t += 10));
-      state = advance(state, PACK_01, (t += 10), seededRng(7)); // lock
-      state = advance(state, PACK_01, (t += 10), seededRng(7)); // debrief
+      state = advanceUntil(state, "active", 7);
+      state = applyInsiderAction(state, PACK_01, state.insiderPlayerId!, "sabotage", state.updatedAt + 10);
+      state = advance(state, PACK_01, state.updatedAt + 20, seededRng(7)); // out of active -> lock
     }
-    state = advance(state, PACK_01, (t += 10), seededRng(7)); // final
+    state = advanceUntil(state, "finalResults", 7);
     const pub = toPublicState(state, PACK_01);
-    expect(state.phase).toBe("finalResults");
     expect(pub.final!.checkmate!.unlocked).toBe(true);
     expect(pub.final!.winner).toBe("red"); // Red wins even at 0–0
     expect(pub.final!.checkmate!.insiderName).toBeTruthy();
@@ -145,16 +150,13 @@ describe("insider action + checkmate", () => {
 
   it("does NOT unlock Checkmate if the insider lays low for a round", () => {
     let state = startGame(makeGame(10, true), PACK_01, 2000, seededRng(7));
-    let t = 2100;
     const choices: ("sabotage" | "layLow")[] = ["sabotage", "layLow"];
     for (let r = 0; r < 2; r++) {
-      state = advance(state, PACK_01, (t += 50), seededRng(7));
-      state = advance(state, PACK_01, (t += 50), seededRng(7));
-      state = applyInsiderAction(state, PACK_01, state.insiderPlayerId!, choices[r], (t += 10));
-      state = advance(state, PACK_01, (t += 10), seededRng(7));
-      state = advance(state, PACK_01, (t += 10), seededRng(7));
+      state = advanceUntil(state, "active", 7);
+      state = applyInsiderAction(state, PACK_01, state.insiderPlayerId!, choices[r], state.updatedAt + 10);
+      state = advance(state, PACK_01, state.updatedAt + 20, seededRng(7));
     }
-    state = advance(state, PACK_01, (t += 10), seededRng(7));
+    state = advanceUntil(state, "finalResults", 7);
     const pub = toPublicState(state, PACK_01);
     expect(pub.final!.checkmate!.unlocked).toBe(false);
   });

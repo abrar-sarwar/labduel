@@ -78,6 +78,7 @@ const PHASE_LABELS: Record<Phase, string> = {
   active: "Live Round",
   submissionLock: "Locked",
   debrief: "Debrief",
+  shop: "Strategy Shop",
   finalResults: "Results",
 };
 

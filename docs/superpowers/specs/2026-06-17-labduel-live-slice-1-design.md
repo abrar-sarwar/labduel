@@ -139,9 +139,28 @@ with a **Do it / Lay low** choice.
 - That the *mode* is enabled is public (like knowing there's an impostor); only the
   identity is secret.
 
+## Shop / economy phase (BUILT — Slice 1.2)
+
+A **Shop phase** runs between rounds (`Debrief → Shop → next Briefing`; none after
+the last round) with a discussion timer. Each side has a **shared team budget**.
+
+- **Income** each shop: a base amount minus any insurance premium, plus a bonus for
+  the side that won the round just played.
+- **Company Damage** is a single 0–100 breach meter: it rises when Red wins a round,
+  recovers a little when Blue wins. At **100% it's a full breach → Red wins** (a
+  second comeback condition alongside Checkmate).
+- **Upgrades** (catalog in `lib/content/upgrades.ts`, safe/conceptual): bounded
+  effects — a one-round team score bonus, damage reduction (Blue backups), offensive
+  breach pressure (Red), and **Insurance/War Chest** (money now, but a permanent
+  **premium** that lowers future income — a comeback lever that doesn't erase
+  consequences).
+- **Host enters purchases** (MVP). Players get a read-only shop to discuss; team
+  voting is deferred. Buying is host-authorized server-side and only valid during
+  the Shop phase. Budgets, owned upgrades, and company damage are all public.
+
 ## Explicitly OUT of Slice 1 (designed-for, not built)
 
-Economy/shop · company damage · insurance ·
+Team voting on purchases ·
 the other team/role assignment modes · role-rotation toggle · characters/art ·
 rounds 3–9 · full host override console · Supabase adapter wiring · LabDuel Quest ·
 LabDuel Studio · platform/accounts layer.

@@ -12,6 +12,8 @@ import {
   ScoreboardSquads,
   FinalBlock,
   HostModerationPanel,
+  ShopBoard,
+  CompanyDamageMeter,
 } from "@/components/panels";
 import { Button, Toggle } from "@/components/ui";
 import type { Phase, PublicState } from "@/lib/shared/types";
@@ -30,7 +32,9 @@ function nextAction(pub: PublicState): { label: string; action: "start" | "advan
     case "submissionLock":
       return { label: "Show debrief", action: "advance" };
     case "debrief":
-      return { label: last ? "Final results" : "Next round", action: "advance" };
+      return { label: last ? "Final results" : "Open strategy shop", action: "advance" };
+    case "shop":
+      return { label: `Start Round ${pub.roundIndex + 2}`, action: "advance" };
     default:
       return null;
   }
@@ -42,6 +46,7 @@ const PHASE_HINT: Record<Phase, string> = {
   roundBriefing: "Coin flip is in. Start the round when the room is ready.",
   active: "Squads are working. Watch submissions roll in, or lock early.",
   submissionLock: "Locked and scored. Reveal the debrief.",
+  shop: "Teams discuss and spend. Enter their picks, then start the next round.",
   debrief: "Talk through it, then move on.",
   finalResults: "Game over. Recap the learning.",
 };
@@ -213,6 +218,29 @@ export default function HostPage() {
               {pub.phase === "debrief" && pub.debrief && <DebriefBlock debrief={pub.debrief} />}
               {pub.phase === "finalResults" && pub.final && <FinalBlock final={pub.final} />}
 
+              {pub.phase === "shop" && (
+                <div className="space-y-4">
+                  <div className="panel p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="eyebrow">Strategy &amp; economy</p>
+                        <h2 className="font-display text-2xl font-black">Spend between rounds</h2>
+                        <p className="mt-1 text-sm text-paper/60">
+                          Each side discusses out loud — you enter their picks.
+                        </p>
+                      </div>
+                      <div className="w-32 shrink-0">
+                        <Countdown deadline={pub.phaseDeadline} totalSeconds={pub.settings.shopSeconds} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <ShopBoard team="red" economy={pub.economy.red} code={code} canBuy onBought={() => {}} />
+                    <ShopBoard team="blue" economy={pub.economy.blue} code={code} canBuy onBought={() => {}} />
+                  </div>
+                </div>
+              )}
+
               {pub.phase === "roleReveal" && (
                 <CenterMessage title="Roles revealed">
                   <p>Every player can see their role and squad. Brief the round when ready.</p>
@@ -240,6 +268,9 @@ export default function HostPage() {
 
               <div className="panel p-5">
                 <ScoreBar red={pub.scores.red} blue={pub.scores.blue} />
+                <div className="mt-4">
+                  <CompanyDamageMeter value={pub.companyDamage} compact />
+                </div>
               </div>
 
               {moderation && <HostModerationPanel moderation={moderation} />}

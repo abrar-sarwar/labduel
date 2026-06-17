@@ -165,7 +165,9 @@ describe("full round flow", () => {
     expect(state.phase).toBe("submissionLock");
     state = advance(state, PACK_01, 2400, seededRng(3));
     expect(state.phase).toBe("debrief");
-    state = advance(state, PACK_01, 2500, seededRng(3)); // -> round 2 briefing
+    state = advance(state, PACK_01, 2500, seededRng(3)); // -> shop (between rounds)
+    expect(state.phase).toBe("shop");
+    state = advance(state, PACK_01, 2600, seededRng(3)); // -> round 2 briefing
     expect(state.phase).toBe("roundBriefing");
     expect(state.roundIndex).toBe(1);
   });
@@ -174,7 +176,7 @@ describe("full round flow", () => {
     let state = startGame(makeGame(8), PACK_01, 2000, seededRng(3));
     // 2 rounds: roleReveal -> (briefing,active,lock,debrief) x2 -> final
     const order = [
-      "roundBriefing", "active", "submissionLock", "debrief",
+      "roundBriefing", "active", "submissionLock", "debrief", "shop",
       "roundBriefing", "active", "submissionLock", "debrief",
       "finalResults",
     ];

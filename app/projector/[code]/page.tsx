@@ -4,7 +4,14 @@ import { useParams } from "next/navigation";
 import { useGameStream } from "@/components/hooks";
 import { Logo } from "@/components/ui";
 import { ScoreBar, CoinFlip, Countdown, ConnIndicator, PhasePill } from "@/components/game";
-import { MissionBrief, DebriefBlock, ScoreboardSquads, FinalBlock } from "@/components/panels";
+import {
+  MissionBrief,
+  DebriefBlock,
+  ScoreboardSquads,
+  FinalBlock,
+  ShopBoard,
+  CompanyDamageMeter,
+} from "@/components/panels";
 import { LabDuelMark } from "@/components/icons";
 
 export default function ProjectorPage() {
@@ -95,13 +102,30 @@ export default function ProjectorPage() {
               </div>
             )}
 
+            {pub.phase === "shop" && (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h1 className="font-display text-5xl font-black">Strategy Phase</h1>
+                  <p className="mt-2 text-2xl text-paper/60">Teams spend their budget. Choose wisely.</p>
+                  <div className="mx-auto mt-4 max-w-xs">
+                    <Countdown deadline={pub.phaseDeadline} totalSeconds={pub.settings.shopSeconds} big />
+                  </div>
+                </div>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <ShopBoard team="red" economy={pub.economy.red} code={code} canBuy={false} onBought={() => {}} />
+                  <ShopBoard team="blue" economy={pub.economy.blue} code={code} canBuy={false} onBought={() => {}} />
+                </div>
+              </div>
+            )}
+
             {pub.phase === "finalResults" && pub.final && <FinalBlock final={pub.final} />}
 
             {/* Persistent scoreboard during play */}
             {pub.phase !== "finalResults" && (
               <div className="grid gap-6 md:grid-cols-[1fr_1.3fr]">
-                <div className="panel p-6">
+                <div className="panel space-y-4 p-6">
                   <ScoreBar red={pub.scores.red} blue={pub.scores.blue} />
+                  <CompanyDamageMeter value={pub.companyDamage} />
                 </div>
                 <div className="panel p-6">
                   <ScoreboardSquads squads={pub.squads} />

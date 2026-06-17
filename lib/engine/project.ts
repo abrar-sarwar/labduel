@@ -96,6 +96,8 @@ export function toPublicState(state: GameState, pack: ScenarioPack): PublicState
     roundCount: state.settings.roundCount,
     settings: state.settings,
     scores: state.scores,
+    economy: state.economy,
+    companyDamage: state.companyDamage,
     players: state.players.map((p) => ({
       id: p.id,
       name: p.name,
@@ -109,6 +111,7 @@ export function toPublicState(state: GameState, pack: ScenarioPack): PublicState
     round,
     debrief,
     final,
+    phaseDeadline: state.phaseDeadline,
     playerCount: state.players.length,
     connectedCount: state.players.filter((p) => p.connected).length,
     waitingCount: state.players.filter((p) => p.status === "waiting").length,

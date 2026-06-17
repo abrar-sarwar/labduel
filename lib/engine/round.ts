@@ -13,6 +13,12 @@ import type { ScenarioPack, RoundContent, TaskDef } from "../shared/content-type
 import type { Rng } from "./rng";
 import { validateAnswer, scoreSubmission } from "./scoring";
 import { assignTeamsAndSquads, placeWaitingPlayers } from "./assign";
+import { getUpgrade } from "../content/upgrades";
+
+const SHOP_BASE_INCOME = 500;
+const SHOP_WINNER_BONUS = 250;
+const DAMAGE_ON_RED_WIN = 15;
+const RECOVERY_ON_BLUE_WIN = 8;
 
 export class GameError extends Error {
   constructor(public code: string, message: string) {
@@ -218,14 +224,100 @@ function finalizeRound(state: GameState, pack: ScenarioPack): GameState {
   }
   const rounds = state.rounds.slice();
   rounds[state.roundIndex] = { ...round, scored: true, roundScore };
+  // The next-round score bonus from the shop applies to exactly one round — spend it.
+  const economy = {
+    red: { ...state.economy.red, nextRoundBonusPct: 0 },
+    blue: { ...state.economy.blue, nextRoundBonusPct: 0 },
+  };
   return {
     ...state,
     rounds,
+    economy,
     scores: {
       red: state.scores.red + roundScore.red,
       blue: state.scores.blue + roundScore.blue,
     },
   };
+}
+
+// ---------------- Shop / economy phase ----------------
+
+function beginShop(state: GameState, now: number): GameState {
+  const round = state.rounds[state.roundIndex];
+  const rs = round?.roundScore ?? { red: 0, blue: 0 };
+
+  // Company breach: rises when Red took the round, recovers a little when Blue did.
+  let companyDamage = state.companyDamage;
+  if (rs.red > rs.blue) companyDamage = Math.min(100, companyDamage + DAMAGE_ON_RED_WIN);
+  else if (rs.blue > rs.red) companyDamage = Math.max(0, companyDamage - RECOVERY_ON_BLUE_WIN);
+
+  // Income: base minus any insurance premium, plus a bonus for the round winner.
+  const econ = {
+    red: { ...state.economy.red },
+    blue: { ...state.economy.blue },
+  };
+  for (const team of ["red", "blue"] as Team[]) {
+    econ[team].money += Math.max(0, SHOP_BASE_INCOME - econ[team].premium);
+  }
+  if (rs.red > rs.blue) econ.red.money += SHOP_WINNER_BONUS;
+  else if (rs.blue > rs.red) econ.blue.money += SHOP_WINNER_BONUS;
+
+  return {
+    ...state,
+    phase: "shop",
+    economy: econ,
+    companyDamage,
+    phaseDeadline: now + state.settings.shopSeconds * 1000,
+  };
+}
+
+/** Host-authorized purchase during the Shop phase. */
+export function buyUpgrade(
+  state: GameState,
+  team: Team,
+  upgradeId: string,
+  now: number
+): GameState {
+  if (state.phase !== "shop")
+    throw new GameError("bad_phase", "The shop is closed");
+  const up = getUpgrade(upgradeId);
+  if (!up || up.team !== team)
+    throw new GameError("no_upgrade", "No such upgrade for that team");
+
+  const te = state.economy[team];
+  if (te.upgrades.includes(up.id))
+    throw new GameError("already_owned", "Already purchased");
+  if (te.money < up.cost)
+    throw new GameError("insufficient_funds", "Not enough money");
+
+  let money = te.money - up.cost;
+  let premium = te.premium;
+  let nextRoundBonusPct = te.nextRoundBonusPct;
+  let companyDamage = state.companyDamage;
+
+  switch (up.effect.kind) {
+    case "scoreNextRound":
+      nextRoundBonusPct += up.effect.pct;
+      break;
+    case "reduceDamage":
+      companyDamage = Math.max(0, companyDamage - up.effect.amount);
+      break;
+    case "addDamage":
+      companyDamage = Math.min(100, companyDamage + up.effect.amount);
+      break;
+    case "insurance":
+      money += up.effect.money;
+      premium += up.effect.premium;
+      break;
+  }
+
+  const economy = {
+    ...state.economy,
+    [team]: { money, premium, nextRoundBonusPct, upgrades: [...te.upgrades, up.id] },
+  };
+  let next: GameState = { ...state, economy, companyDamage };
+  next = audit(next, "host", "buy", { team, upgrade: up.id, cost: up.cost });
+  return withMeta(next, now);
 }
 
 // ---------------- Advance phase ----------------
@@ -265,12 +357,16 @@ export function advance(
     case "debrief": {
       const nextIndex = state.roundIndex + 1;
       if (nextIndex < state.settings.roundCount && nextIndex < pack.rounds.length) {
-        next = beginRound(state, nextIndex, now, rng);
+        next = beginShop(state, now); // strategy/economy phase before the next round
       } else {
         next = { ...state, phase: "finalResults", phaseDeadline: null };
       }
       break;
     }
+
+    case "shop":
+      next = beginRound(state, state.roundIndex + 1, now, rng);
+      break;
 
     case "finalResults":
       return state;
@@ -324,7 +420,7 @@ export function applySubmission(
 
   const correct = validateAnswer(task, answer);
   const msRemaining = Math.max(0, round.deadline - now);
-  const points = scoreSubmission({
+  const base = scoreSubmission({
     task,
     correct,
     msRemaining,
@@ -332,6 +428,9 @@ export function applySubmission(
     hasInitiative: round.initiative === player.team,
     initiativeBonus: rc.initiativeBonus,
   });
+  // Apply any shop "next round" team bonus.
+  const teamBonus = player.team ? state.economy[player.team].nextRoundBonusPct : 0;
+  const points = Math.round(base * (1 + teamBonus));
 
   const submission: Submission = {
     taskId,
@@ -369,6 +468,11 @@ export function computeFinal(state: GameState, pack: ScenarioPack): PublicFinal 
     ? { enabled: cm.enabled, unlocked: cm.unlocked, insiderName }
     : null;
 
+  // Full company breach also flips the win to Red.
+  const breached = state.companyDamage >= 100;
+  if (breached) winner = "red";
+  const breach = { companyDamage: state.companyDamage, breached };
+
   const squadScores = state.squads.map((sq) => {
     const score = state.rounds.reduce((sum, round) => {
       return (
@@ -392,5 +496,5 @@ export function computeFinal(state: GameState, pack: ScenarioPack): PublicFinal 
       return { round: r.number, title: rc?.title ?? "", takeaway: rc?.debrief.takeaway ?? "" };
     });
 
-  return { winner, scores: { red, blue }, mvpSquad, recap, checkmate };
+  return { winner, scores: { red, blue }, mvpSquad, recap, checkmate, breach };
 }

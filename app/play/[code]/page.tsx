@@ -18,6 +18,8 @@ import {
   FinalBlock,
   InsiderPanel,
   InsiderRevealCard,
+  ShopBoard,
+  CompanyDamageMeter,
 } from "@/components/panels";
 import { Button } from "@/components/ui";
 
@@ -201,6 +203,26 @@ export default function PlayPage() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* SHOP */}
+        {pub.phase === "shop" && team && !waiting && (
+          <div className="space-y-4">
+            <div className="panel p-5 text-center">
+              <p className="eyebrow">Strategy phase</p>
+              <h2 className="mt-1 font-display text-2xl font-black">Talk it out with your team</h2>
+              <p className="mt-1 text-sm text-paper/60">
+                Decide what to buy together — your host enters the call. Countdown:
+              </p>
+              <div className="mx-auto mt-3 max-w-[180px]">
+                <Countdown deadline={pub.phaseDeadline} totalSeconds={pub.settings.shopSeconds} />
+              </div>
+            </div>
+            <div className="panel p-5">
+              <CompanyDamageMeter value={pub.companyDamage} />
+            </div>
+            <ShopBoard team={team} economy={pub.economy[team]} code={code} canBuy={false} onBought={refetch} />
           </div>
         )}
 

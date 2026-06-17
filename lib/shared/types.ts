@@ -12,6 +12,7 @@ export type Phase =
   | "active"
   | "submissionLock"
   | "debrief"
+  | "shop"
   | "finalResults";
 
 export interface GameSettings {
@@ -20,6 +21,8 @@ export interface GameSettings {
   squadSize: number;
   /** Round timer in seconds for the Active phase. */
   roundSeconds: number;
+  /** Discussion timer (seconds) for the between-rounds Shop phase. */
+  shopSeconds: number;
   /** Designed-for; always false in Slice 1. */
   insiderThreat: boolean;
 }
@@ -28,8 +31,26 @@ export const DEFAULT_SETTINGS: GameSettings = {
   roundCount: 2,
   squadSize: 5,
   roundSeconds: 90,
+  shopSeconds: 75,
   insiderThreat: false,
 };
+
+/** Shared per-team budget + owned upgrades. All public. */
+export interface TeamEconomy {
+  money: number;
+  upgrades: string[];
+  /** Income reduction carried from insurance purchases. */
+  premium: number;
+  /** Task-points bonus (fraction) applied during the NEXT active round only. */
+  nextRoundBonusPct: number;
+}
+
+export type Economy = Record<Team, TeamEconomy>;
+
+export const STARTING_ECONOMY: () => Economy = () => ({
+  red: { money: 600, upgrades: [], premium: 0, nextRoundBonusPct: 0 },
+  blue: { money: 600, upgrades: [], premium: 0, nextRoundBonusPct: 0 },
+});
 
 export interface Player {
   id: string;
@@ -103,6 +124,9 @@ export interface GameState {
   roundIndex: number;
   rounds: RoundRuntime[];
   scores: { red: number; blue: number };
+  economy: Economy;
+  /** Company breach meter (0–100). 100 = full breach → Red wins. */
+  companyDamage: number;
   /** Server-stored deadline for the current timed phase (epoch ms). */
   phaseDeadline: number | null;
   audit: AuditEntry[];
@@ -164,6 +188,8 @@ export interface PublicFinal {
    * disclosing the insider's identity here is intentional and safe.
    */
   checkmate: { enabled: boolean; unlocked: boolean; insiderName: string | null } | null;
+  /** Company breach outcome. `breached` (>=100) flips the win to Red. */
+  breach: { companyDamage: number; breached: boolean };
 }
 
 export interface PublicState {
@@ -174,11 +200,15 @@ export interface PublicState {
   roundCount: number;
   settings: GameSettings;
   scores: { red: number; blue: number };
+  economy: Economy;
+  companyDamage: number;
   players: PublicPlayer[];
   squads: PublicSquad[];
   round: PublicRound | null;
   debrief: PublicDebrief | null;
   final: PublicFinal | null;
+  /** Deadline for the current timed phase (e.g. the Shop discussion timer). */
+  phaseDeadline: number | null;
   playerCount: number;
   connectedCount: number;
   waitingCount: number;

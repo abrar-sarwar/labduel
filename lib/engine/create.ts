@@ -2,7 +2,7 @@
 // stay deterministic and testable; the server passes crypto-backed values.
 
 import type { GameState, GameSettings, Player } from "../shared/types";
-import { DEFAULT_SETTINGS } from "../shared/types";
+import { DEFAULT_SETTINGS, STARTING_ECONOMY } from "../shared/types";
 import { GameError } from "./round";
 
 export interface CreateGameParams {
@@ -35,6 +35,8 @@ export function createGameState(params: CreateGameParams): GameState {
     roundIndex: 0,
     rounds: [],
     scores: { red: 0, blue: 0 },
+    economy: STARTING_ECONOMY(),
+    companyDamage: 0,
     phaseDeadline: null,
     audit: [],
     rev: 1,

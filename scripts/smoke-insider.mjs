@@ -76,9 +76,18 @@ check("innocent sees isInsider=false", innocentMe.json.view.you.isInsider === fa
 check("innocent has no insider payload", innocentMe.json.view.insider === null);
 check("innocent payload has no objective text", !JSON.stringify(innocentMe.json).includes("false positive"));
 
-// Advance to the active phase.
-await req(host, "POST", `/api/games/${code}/host`, { action: "advance" }); // briefing
-await req(host, "POST", `/api/games/${code}/host`, { action: "advance" }); // active
+// Advance the host until the room reaches a target phase (robust to Shop).
+async function advanceUntil(target) {
+  let phase = "";
+  for (let i = 0; i < 14; i++) {
+    const r = await req(host, "POST", `/api/games/${code}/host`, { action: "advance" });
+    phase = r.json.phase;
+    if (phase === target) break;
+  }
+  return phase;
+}
+
+await advanceUntil("active"); // round 1 active
 
 // A non-insider cannot perform the insider action.
 const innocentSabotage = await req(innocent.jar, "POST", `/api/games/${code}/insider`, { choice: "sabotage" });
@@ -88,16 +97,11 @@ check("non-insider blocked from insider action", innocentSabotage.status === 400
 const sab1 = await req(insider.jar, "POST", `/api/games/${code}/insider`, { choice: "sabotage" });
 check("insider can sabotage", sab1.status === 200);
 
-// Finish round 1, run round 2 with sabotage, to the end.
-await req(host, "POST", `/api/games/${code}/host`, { action: "advance" }); // lock
-await req(host, "POST", `/api/games/${code}/host`, { action: "advance" }); // debrief
-await req(host, "POST", `/api/games/${code}/host`, { action: "advance" }); // round 2 briefing
-await req(host, "POST", `/api/games/${code}/host`, { action: "advance" }); // active
+// Through the Shop phase into round 2, sabotage again, then to the end.
+await advanceUntil("active"); // round 2 active (passes through lock/debrief/shop/briefing)
 await req(insider.jar, "POST", `/api/games/${code}/insider`, { choice: "sabotage" });
-await req(host, "POST", `/api/games/${code}/host`, { action: "advance" }); // lock
-await req(host, "POST", `/api/games/${code}/host`, { action: "advance" }); // debrief
-const fin = await req(host, "POST", `/api/games/${code}/host`, { action: "advance" }); // final
-check("game ended", fin.json.phase === "finalResults");
+const finalPhase = await advanceUntil("finalResults");
+check("game ended", finalPhase === "finalResults");
 
 const final = await req(stranger, "GET", `/api/games/${code}/state`);
 check("checkmate unlocked after sabotaging both rounds", final.json.final.checkmate.unlocked === true);

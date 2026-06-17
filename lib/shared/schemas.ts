@@ -60,6 +60,12 @@ export const insiderActionSchema = z.object({
   choice: z.enum(["sabotage", "layLow"]),
 });
 
+// Shop purchase (host-authorized in the MVP).
+export const buyUpgradeSchema = z.object({
+  team: z.enum(["red", "blue"]),
+  upgradeId: z.string().min(1),
+});
+
 export type CreateGameInput = z.infer<typeof createGameSchema>;
 export type JoinGameInput = z.infer<typeof joinGameSchema>;
 export type SubmitTaskInput = z.infer<typeof submitTaskSchema>;

@@ -13,6 +13,8 @@ import type {
 } from "@/lib/shared/types";
 import { teamClasses, teamLabel, TeamCrest } from "./game";
 import { postAction } from "./hooks";
+import { upgradesForTeam } from "@/lib/content/upgrades";
+import type { TeamEconomy } from "@/lib/shared/types";
 
 export function MissionBrief({ round }: { round: PublicRound }) {
   const c = teamClasses(round.initiative);
@@ -129,6 +131,14 @@ export function FinalBlock({ final }: { final: PublicFinal }) {
           </p>
         </div>
       )}
+      {final.breach?.breached && (
+        <div className="mx-auto max-w-xl animate-pop rounded-xl2 border border-danger/50 bg-danger/10 p-5">
+          <p className="font-mono text-xs uppercase tracking-[0.4em] text-danger">⚠ Full breach</p>
+          <p className="mt-2 font-display text-2xl font-black text-danger">
+            The company fell to 100% breach. Red wins.
+          </p>
+        </div>
+      )}
       <p className="eyebrow">Final result</p>
       {final.winner === "tie" ? (
         <h1 className="font-display text-5xl font-black text-gold">It&apos;s a draw!</h1>
@@ -175,6 +185,133 @@ export function FinalBlock({ final }: { final: PublicFinal }) {
           ))}
         </ul>
       </div>
+    </div>
+  );
+}
+
+// ---------------- Economy / Shop ----------------
+
+export function CompanyDamageMeter({ value, compact }: { value: number; compact?: boolean }) {
+  const pct = Math.max(0, Math.min(100, value));
+  const tone = pct >= 80 ? "bg-danger" : pct >= 50 ? "bg-warn" : "bg-mint";
+  return (
+    <div>
+      <div className="flex items-center justify-between text-xs">
+        <span className="eyebrow">Company breach</span>
+        <span className={cn("font-mono tabular-nums", pct >= 80 ? "text-danger" : "text-paper/70")}>
+          {pct}%
+        </span>
+      </div>
+      <div className={cn("mt-1.5 w-full overflow-hidden rounded-full bg-white/10", compact ? "h-2" : "h-3")}>
+        <div className={cn("h-full rounded-full transition-[width] duration-700", tone)} style={{ width: `${pct}%` }} />
+      </div>
+      {!compact && pct >= 80 && (
+        <p className="mt-1 text-[0.7rem] text-danger">Critical — at 100% the company is fully breached (Red wins).</p>
+      )}
+    </div>
+  );
+}
+
+export function MoneyTag({ amount, team }: { amount: number; team?: Team }) {
+  const c = teamClasses(team ?? null);
+  return (
+    <span className={cn("inline-flex items-center gap-1 font-display font-black tabular-nums", c.text)}>
+      <span className="text-gold">¤</span>
+      {amount}
+    </span>
+  );
+}
+
+/** One team's shop board. Interactive when `canBuy` (host); read-only otherwise. */
+export function ShopBoard({
+  team,
+  economy,
+  code,
+  canBuy,
+  onBought,
+}: {
+  team: Team;
+  economy: TeamEconomy;
+  code: string;
+  canBuy: boolean;
+  onBought: () => void;
+}) {
+  const c = teamClasses(team);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const catalog = upgradesForTeam(team);
+
+  async function buy(upgradeId: string) {
+    setBusyId(upgradeId);
+    setErr(null);
+    try {
+      await postAction(`/api/games/${code}/shop`, { team, upgradeId });
+      onBought();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  return (
+    <div className={cn("panel p-5", c.border)}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <TeamCrest team={team} size="sm" />
+          <p className={cn("font-display text-sm font-black uppercase", c.text)}>{teamLabel(team)}</p>
+        </div>
+        <div className="text-right">
+          <MoneyTag amount={economy.money} team={team} />
+          {economy.premium > 0 && (
+            <p className="text-[0.65rem] text-warn">−{economy.premium}/round premium</p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {catalog.map((u) => {
+          const owned = economy.upgrades.includes(u.id);
+          const affordable = economy.money >= u.cost;
+          return (
+            <div
+              key={u.id}
+              className={cn(
+                "rounded-xl border p-3 transition",
+                owned ? "border-mint/40 bg-mint/5" : "border-white/10 bg-ink-700/40"
+              )}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-display text-sm font-bold">{u.name}</p>
+                    {owned && <span className="font-mono text-[0.6rem] uppercase tracking-widest text-mint">Owned</span>}
+                  </div>
+                  <p className="mt-0.5 text-xs text-paper/70">{u.blurb}</p>
+                  <p className="mt-0.5 text-[0.7rem] text-paper/40">{u.concept}</p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <MoneyTag amount={u.cost} />
+                  {canBuy && !owned && (
+                    <button
+                      disabled={!affordable || busyId !== null}
+                      onClick={() => buy(u.id)}
+                      className={cn(
+                        "mt-1 block rounded-lg px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wide transition disabled:opacity-40",
+                        c.bg,
+                        "text-ink"
+                      )}
+                    >
+                      {busyId === u.id ? "…" : affordable ? "Buy" : "Can't afford"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {err && <p className="mt-2 text-sm text-danger">{err}</p>}
     </div>
   );
 }
