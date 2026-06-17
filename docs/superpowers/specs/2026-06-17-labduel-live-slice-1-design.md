@@ -163,9 +163,13 @@ the last round) with a discussion timer. Each side has a **shared team budget**.
   breach pressure (Red), and **Insurance/War Chest** (money now, but a permanent
   **premium** that lowers future income, a comeback lever that doesn't erase
   consequences).
-- **Host enters purchases** (MVP). Players get a read-only shop to discuss; team
-  voting is deferred. Buying is host-authorized server-side and only valid during
-  the Shop phase. Budgets, owned upgrades, and company damage are all public.
+- **Teams vote, leaders buy (Slice 1.7).** Each team has a **leader** (chosen
+  randomly at start; the host can reassign one anytime). During the shop, every
+  teammate **upvotes** the upgrades they want from their phone; the **leader
+  commits** the buys within the shared budget. The host can buy as a fallback. Only
+  valid during the Shop phase; budgets, owned upgrades, leaders, vote tallies, and
+  company damage are all public. Actions: `/api/games/[code]/shop` (`vote` for any
+  teammate, `buy` for the leader/host); `setLeader` via the override endpoint.
 
 ## Host override console (BUILT, Slice 1.4)
 
@@ -199,9 +203,8 @@ Host picks how teams and roles are handed out (create screen).
 
 ## Explicitly OUT of Slice 1 (designed-for, not built)
 
-Team voting on purchases · role-rotation toggle · manual score adjustment ·
-characters/art · Supabase adapter wiring · LabDuel Quest · LabDuel Studio ·
-platform/accounts layer.
+Role-rotation toggle · manual score adjustment · characters/art ·
+Supabase adapter wiring · LabDuel Quest · LabDuel Studio · platform/accounts layer.
 
 ## Visual identity
 

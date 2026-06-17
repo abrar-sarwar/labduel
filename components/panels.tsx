@@ -222,31 +222,42 @@ export function MoneyTag({ amount, team }: { amount: number; team?: Team }) {
   );
 }
 
-/** One team's shop board. Interactive when `canBuy` (host); read-only otherwise. */
+/**
+ * One team's shop board. Teammates upvote (`canVote`); the team leader commits the
+ * buy (`canBuy`). Host/projector views are read-only with the vote tallies shown.
+ */
 export function ShopBoard({
   team,
   economy,
   code,
+  votes,
+  leaderName,
+  meId,
+  canVote,
   canBuy,
-  onBought,
+  onChange,
 }: {
   team: Team;
   economy: TeamEconomy;
   code: string;
+  votes: Record<string, string[]>;
+  leaderName: string | null;
+  meId: string | null;
+  canVote: boolean;
   canBuy: boolean;
-  onBought: () => void;
+  onChange: () => void;
 }) {
   const c = teamClasses(team);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const catalog = upgradesForTeam(team);
 
-  async function buy(upgradeId: string) {
-    setBusyId(upgradeId);
+  async function act(body: object, id: string) {
+    setBusyId(id);
     setErr(null);
     try {
-      await postAction(`/api/games/${code}/shop`, { team, upgradeId });
-      onBought();
+      await postAction(`/api/games/${code}/shop`, body);
+      onChange();
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Failed");
     } finally {
@@ -259,7 +270,12 @@ export function ShopBoard({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <TeamCrest team={team} size="sm" />
-          <p className={cn("font-display text-sm font-black uppercase", c.text)}>{teamLabel(team)}</p>
+          <div>
+            <p className={cn("font-display text-sm font-black uppercase leading-none", c.text)}>{teamLabel(team)}</p>
+            <p className="mt-1 text-[0.7rem] text-paper/50">
+              Leader: <span className="text-paper/80">{leaderName ?? "none yet"}</span>
+            </p>
+          </div>
         </div>
         <div className="text-right">
           <MoneyTag amount={economy.money} team={team} />
@@ -273,6 +289,8 @@ export function ShopBoard({
         {catalog.map((u) => {
           const owned = economy.upgrades.includes(u.id);
           const affordable = economy.money >= u.cost;
+          const voters = votes[u.id] ?? [];
+          const iVoted = meId != null && voters.includes(meId);
           return (
             <div
               key={u.id}
@@ -286,20 +304,36 @@ export function ShopBoard({
                   <div className="flex items-center gap-2">
                     <p className="font-display text-sm font-bold">{u.name}</p>
                     {owned && <span className="font-mono text-[0.6rem] uppercase tracking-widest text-mint">Owned</span>}
+                    {!owned && voters.length > 0 && (
+                      <span className={cn("rounded-full px-1.5 text-[0.65rem] font-bold", c.soft, c.text)}>
+                        ▲ {voters.length}
+                      </span>
+                    )}
                   </div>
                   <p className="mt-0.5 text-xs text-paper/70">{u.blurb}</p>
                   <p className="mt-0.5 text-[0.7rem] text-paper/40">{u.concept}</p>
                 </div>
-                <div className="shrink-0 text-right">
+                <div className="shrink-0 space-y-1 text-right">
                   <MoneyTag amount={u.cost} />
-                  {canBuy && !owned && (
+                  {!owned && canVote && (
+                    <button
+                      disabled={busyId !== null}
+                      onClick={() => act({ kind: "vote", upgradeId: u.id }, u.id)}
+                      className={cn(
+                        "block w-full rounded-lg border px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition",
+                        iVoted ? cn(c.bg, "border-transparent text-ink") : cn(c.border, "text-paper/80 hover:bg-white/5")
+                      )}
+                    >
+                      {iVoted ? "Voted" : "Vote"}
+                    </button>
+                  )}
+                  {!owned && canBuy && (
                     <button
                       disabled={!affordable || busyId !== null}
-                      onClick={() => buy(u.id)}
+                      onClick={() => act({ kind: "buy", team, upgradeId: u.id }, u.id)}
                       className={cn(
-                        "mt-1 block rounded-lg px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wide transition disabled:opacity-40",
-                        c.bg,
-                        "text-ink"
+                        "block w-full rounded-lg px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-ink transition disabled:opacity-40",
+                        c.bg
                       )}
                     >
                       {busyId === u.id ? "…" : affordable ? "Buy" : "Can't afford"}

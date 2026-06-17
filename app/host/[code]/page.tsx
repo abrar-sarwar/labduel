@@ -297,19 +297,63 @@ export default function HostPage() {
                     <div className="flex items-center justify-between gap-4">
                       <div>
                         <p className="eyebrow">Strategy &amp; economy</p>
-                        <h2 className="font-display text-2xl font-black">Spend between rounds</h2>
+                        <h2 className="font-display text-2xl font-black">Teams vote, leaders buy</h2>
                         <p className="mt-1 text-sm text-paper/60">
-                          Each side discusses out loud, you enter their picks.
+                          Players upvote on their phones; each team&apos;s leader commits. You can
+                          buy as a fallback or change a leader below.
                         </p>
                       </div>
                       <div className="w-32 shrink-0">
                         <Countdown deadline={pub.phaseDeadline} totalSeconds={pub.settings.shopSeconds} />
                       </div>
                     </div>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {(["red", "blue"] as const).map((t) => (
+                        <label key={t} className="flex items-center gap-2 text-xs text-paper/60">
+                          <span className={t === "red" ? "text-red-team" : "text-blue-team"}>
+                            {t === "red" ? "Red" : "Blue"} leader
+                          </span>
+                          <select
+                            value={pub.leaders[t] ?? ""}
+                            onChange={(e) =>
+                              postAction(`/api/games/${code}/override`, {
+                                kind: "setLeader",
+                                team: t,
+                                playerId: e.target.value,
+                              }).catch(() => {})
+                            }
+                            className="h-8 flex-1 rounded-lg border border-white/12 bg-ink-800 px-2 text-paper"
+                          >
+                            <option value="" disabled>
+                              none
+                            </option>
+                            {pub.players
+                              .filter((p) => p.team === t && p.status === "active")
+                              .map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p.name}
+                                </option>
+                              ))}
+                          </select>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                   <div className="grid gap-4 md:grid-cols-2">
-                    <ShopBoard team="red" economy={pub.economy.red} code={code} canBuy onBought={() => {}} />
-                    <ShopBoard team="blue" economy={pub.economy.blue} code={code} canBuy onBought={() => {}} />
+                    {(["red", "blue"] as const).map((t) => (
+                      <ShopBoard
+                        key={t}
+                        team={t}
+                        economy={pub.economy[t]}
+                        code={code}
+                        votes={pub.shopVotes[t]}
+                        leaderName={pub.players.find((p) => p.id === pub.leaders[t])?.name ?? null}
+                        meId={null}
+                        canVote={false}
+                        canBuy
+                        onChange={() => {}}
+                      />
+                    ))}
                   </div>
                 </div>
               )}

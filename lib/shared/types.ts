@@ -136,6 +136,10 @@ export interface GameState {
   squads: Squad[];
   /** SERVER ONLY, id of the Insider player, or null. Never projected publicly. */
   insiderPlayerId: string | null;
+  /** The player who commits each team's shop purchases. */
+  leaders: Record<Team, string | null>;
+  /** Shop upvotes: team -> upgradeId -> voter player ids. Reset each shop. */
+  shopVotes: Record<Team, Record<string, string[]>>;
   roundIndex: number;
   rounds: RoundRuntime[];
   scores: { red: number; blue: number };
@@ -218,6 +222,10 @@ export interface PublicState {
   scores: { red: number; blue: number };
   economy: Economy;
   companyDamage: number;
+  /** Each team's leader (commits purchases), or null. */
+  leaders: Record<Team, string | null>;
+  /** Shop upvotes: team -> upgradeId -> voter player ids. */
+  shopVotes: Record<Team, Record<string, string[]>>;
   players: PublicPlayer[];
   squads: PublicSquad[];
   round: PublicRound | null;

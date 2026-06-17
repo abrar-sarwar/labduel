@@ -32,6 +32,8 @@ export function createGameState(params: CreateGameParams): GameState {
     players: [],
     squads: [],
     insiderPlayerId: null,
+    leaders: { red: null, blue: null },
+    shopVotes: { red: {}, blue: {} },
     roundIndex: 0,
     rounds: [],
     scores: { red: 0, blue: 0 },

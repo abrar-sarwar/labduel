@@ -120,11 +120,18 @@ export function startGame(
     }
   }
 
+  // Each team gets a randomly chosen leader (host can change it later).
+  const pickLeader = (team: Team): string | null => {
+    const members = finalPlayers.filter((p) => p.team === team && p.status === "active");
+    return members.length ? members[Math.floor(rng() * members.length)].id : null;
+  };
+
   let next: GameState = {
     ...state,
     players: finalPlayers,
     squads,
     insiderPlayerId,
+    leaders: { red: pickLeader("red"), blue: pickLeader("blue") },
     phase: "roleReveal",
     roundIndex: 0,
     rounds: [],
@@ -290,11 +297,49 @@ function beginShop(state: GameState, now: number): GameState {
     phase: "shop",
     economy: econ,
     companyDamage,
+    shopVotes: { red: {}, blue: {} }, // fresh vote slate each shop
     phaseDeadline: now + state.settings.shopSeconds * 1000,
   };
 }
 
-/** Host-authorized purchase during the Shop phase. */
+/** A teammate toggles their upvote for an upgrade during the shop. */
+export function toggleShopVote(
+  state: GameState,
+  playerId: string,
+  upgradeId: string,
+  now: number
+): GameState {
+  if (state.phase !== "shop") throw new GameError("bad_phase", "The shop is closed");
+  const player = state.players.find((p) => p.id === playerId);
+  if (!player?.team) throw new GameError("no_team", "You have no team");
+  const up = getUpgrade(upgradeId);
+  if (!up || up.team !== player.team)
+    throw new GameError("no_upgrade", "That upgrade isn't for your team");
+
+  const team = player.team;
+  const teamVotes = { ...state.shopVotes[team] };
+  const current = teamVotes[upgradeId] ?? [];
+  teamVotes[upgradeId] = current.includes(playerId)
+    ? current.filter((id) => id !== playerId)
+    : [...current, playerId];
+
+  return withMeta({ ...state, shopVotes: { ...state.shopVotes, [team]: teamVotes } }, now);
+}
+
+/** Host sets (or changes) a team's leader. The player must be on that team. */
+export function setLeader(
+  state: GameState,
+  team: Team,
+  playerId: string,
+  now: number
+): GameState {
+  const player = state.players.find((p) => p.id === playerId);
+  if (!player || player.team !== team)
+    throw new GameError("bad_leader", "That player isn't on that team");
+  return withMeta({ ...state, leaders: { ...state.leaders, [team]: playerId } }, now);
+}
+
+/** Purchase during the Shop phase. Committed by the team leader (or host). */
 export function buyUpgrade(
   state: GameState,
   team: Team,

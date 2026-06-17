@@ -69,11 +69,11 @@ export const insiderActionSchema = z.object({
   choice: z.enum(["sabotage", "layLow"]),
 });
 
-// Shop purchase (host-authorized in the MVP).
-export const buyUpgradeSchema = z.object({
-  team: z.enum(["red", "blue"]),
-  upgradeId: z.string().min(1),
-});
+// Shop actions: teammates vote, the leader (or host) commits the buy.
+export const shopActionSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("vote"), upgradeId: z.string().min(1) }),
+  z.object({ kind: z.literal("buy"), team: z.enum(["red", "blue"]), upgradeId: z.string().min(1) }),
+]);
 
 // Test/demo helpers (host-authorized).
 export const testActionSchema = z.object({
@@ -97,6 +97,11 @@ export const overrideSchema = z.discriminatedUnion("kind", [
     squadId: z.string().min(1).optional(),
     roleKey: z.string().min(1).optional(),
     joinNow: z.boolean().optional(),
+  }),
+  z.object({
+    kind: z.literal("setLeader"),
+    team: z.enum(["red", "blue"]),
+    playerId: z.string().min(1),
   }),
 ]);
 

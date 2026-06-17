@@ -283,20 +283,42 @@ export default function PlayPage() {
         {/* SHOP */}
         {pub.phase === "shop" && team && !waiting && (
           <div className="space-y-4">
-            <div className="panel p-5 text-center">
-              <p className="eyebrow">Strategy phase</p>
-              <h2 className="mt-1 font-display text-2xl font-black">Talk it out with your team</h2>
-              <p className="mt-1 text-sm text-paper/60">
-                Decide what to buy together, your host enters the call. Countdown:
-              </p>
-              <div className="mx-auto mt-3 max-w-[180px]">
-                <Countdown deadline={pub.phaseDeadline} totalSeconds={pub.settings.shopSeconds} />
-              </div>
-            </div>
-            <div className="panel p-5">
-              <CompanyDamageMeter value={pub.companyDamage} />
-            </div>
-            <ShopBoard team={team} economy={pub.economy[team]} code={code} canBuy={false} onBought={refetch} />
+            {(() => {
+              const isLeader = view?.you.id === pub.leaders[team];
+              const leaderName = pub.players.find((p) => p.id === pub.leaders[team])?.name ?? null;
+              return (
+                <>
+                  <div className="panel p-5 text-center">
+                    <p className="eyebrow">Strategy phase</p>
+                    <h2 className="mt-1 font-display text-2xl font-black">
+                      {isLeader ? "You're the team leader" : "Vote on what to buy"}
+                    </h2>
+                    <p className="mt-1 text-sm text-paper/60">
+                      {isLeader
+                        ? "Read the room, then commit your team's buys before time's up."
+                        : `Upvote what you want. ${leaderName ?? "Your leader"} makes the final call.`}
+                    </p>
+                    <div className="mx-auto mt-3 max-w-[180px]">
+                      <Countdown deadline={pub.phaseDeadline} totalSeconds={pub.settings.shopSeconds} />
+                    </div>
+                  </div>
+                  <div className="panel p-5">
+                    <CompanyDamageMeter value={pub.companyDamage} />
+                  </div>
+                  <ShopBoard
+                    team={team}
+                    economy={pub.economy[team]}
+                    code={code}
+                    votes={pub.shopVotes[team]}
+                    leaderName={leaderName}
+                    meId={view?.you.id ?? null}
+                    canVote
+                    canBuy={isLeader}
+                    onChange={refetch}
+                  />
+                </>
+              );
+            })()}
           </div>
         )}
 

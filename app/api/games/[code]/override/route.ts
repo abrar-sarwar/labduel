@@ -1,5 +1,5 @@
 import { overrideSchema } from "@/lib/shared/schemas";
-import { reassignPlayer, assignWaiting } from "@/lib/engine";
+import { reassignPlayer, assignWaiting, setLeader } from "@/lib/engine";
 import { registry } from "@/lib/server/registry";
 import { isHost } from "@/lib/server/auth";
 import { ok, fail, parseBody, errorResponse } from "@/lib/server/http";
@@ -30,6 +30,9 @@ export async function POST(
           { team: input.team, squadId: input.squadId, roleKey: input.roleKey },
           now
         );
+      }
+      if (input.kind === "setLeader") {
+        return setLeader(state, input.team, input.playerId, now);
       }
       return assignWaiting(
         state,

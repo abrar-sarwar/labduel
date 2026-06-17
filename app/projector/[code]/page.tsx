@@ -112,8 +112,20 @@ export default function ProjectorPage() {
                   </div>
                 </div>
                 <div className="grid gap-6 md:grid-cols-2">
-                  <ShopBoard team="red" economy={pub.economy.red} code={code} canBuy={false} onBought={() => {}} />
-                  <ShopBoard team="blue" economy={pub.economy.blue} code={code} canBuy={false} onBought={() => {}} />
+                  {(["red", "blue"] as const).map((t) => (
+                    <ShopBoard
+                      key={t}
+                      team={t}
+                      economy={pub.economy[t]}
+                      code={code}
+                      votes={pub.shopVotes[t]}
+                      leaderName={pub.players.find((p) => p.id === pub.leaders[t])?.name ?? null}
+                      meId={null}
+                      canVote={false}
+                      canBuy={false}
+                      onChange={() => {}}
+                    />
+                  ))}
                 </div>
               </div>
             )}

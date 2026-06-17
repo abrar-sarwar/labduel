@@ -98,6 +98,8 @@ export function toPublicState(state: GameState, pack: ScenarioPack): PublicState
     scores: state.scores,
     economy: state.economy,
     companyDamage: state.companyDamage,
+    leaders: state.leaders,
+    shopVotes: state.shopVotes,
     players: state.players.map((p) => ({
       id: p.id,
       name: p.name,

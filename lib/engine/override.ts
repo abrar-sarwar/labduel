@@ -81,11 +81,18 @@ export function reassignPlayer(
       ? { ...p, team, squadId: squad.id, roleKey, status: "active" as const, insider: losesInsider ? false : p.insider }
       : p
   );
+  // If this player led a team they just left, that team needs a new leader.
+  const leaders = { ...state.leaders };
+  (["red", "blue"] as Team[]).forEach((t) => {
+    if (leaders[t] === playerId && t !== team) leaders[t] = null;
+  });
+
   let next: GameState = {
     ...state,
     players,
     squads: reseat(state.squads, playerId, squad.id),
     insiderPlayerId: losesInsider ? null : state.insiderPlayerId,
+    leaders,
   };
   next = audit(next, "reassign", { playerId, team, squadId: squad.id, roleKey });
   return bump(next, now);
