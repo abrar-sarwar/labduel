@@ -17,8 +17,8 @@ import { rolesForTeam } from "../shared/roles";
 import { getUpgrade } from "../content/upgrades";
 import { LANE_IDS } from "../content/lanes";
 
-const SHOP_BASE_INCOME = 300;
-const SHOP_WINNER_BONUS = 150;
+const SHOP_BASE_INCOME = 5;
+const SHOP_WINNER_BONUS = 3;
 const DAMAGE_ON_RED_WIN = 15;
 const RECOVERY_ON_BLUE_WIN = 8;
 // Siege board resolution

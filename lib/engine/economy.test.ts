@@ -33,8 +33,8 @@ function advanceUntil(state: GameState, phase: string, seed = 1): GameState {
 describe("economy + shop", () => {
   it("starts each team with the starting budget and no damage", () => {
     const state = makeGame(8);
-    expect(state.economy.red.money).toBe(450);
-    expect(state.economy.blue.money).toBe(450);
+    expect(state.economy.red.money).toBe(8);
+    expect(state.economy.blue.money).toBe(8);
     expect(state.companyDamage).toBe(0);
   });
 
@@ -42,9 +42,9 @@ describe("economy + shop", () => {
     let state = startGame(makeGame(8), PACK_01, 2000, seededRng(1));
     state = advanceUntil(state, "shop", 1);
     expect(state.phase).toBe("shop");
-    // starting 450 + base income 300 (no submissions => 0-0, no winner bonus)
-    expect(state.economy.red.money).toBe(750);
-    expect(state.economy.blue.money).toBe(750);
+    // starting 8 + base income 5 (no submissions => 0-0, no winner bonus)
+    expect(state.economy.red.money).toBe(13);
+    expect(state.economy.blue.money).toBe(13);
   });
 
   it("rejects buying outside the shop phase", () => {
@@ -56,7 +56,7 @@ describe("economy + shop", () => {
     let state = advanceUntil(startGame(makeGame(8), PACK_01, 2000, seededRng(1)), "shop", 1);
     const before = state.economy.blue.money;
     state = buyUpgrade(state, "blue", "mfa", state.updatedAt + 10);
-    expect(state.economy.blue.money).toBe(before - 320);
+    expect(state.economy.blue.money).toBe(before - 5);
     expect(state.economy.blue.upgrades).toContain("mfa");
     expect(state.economy.blue.nextRoundBonusPct).toBeCloseTo(0.1);
   });
@@ -65,7 +65,7 @@ describe("economy + shop", () => {
     let state = advanceUntil(startGame(makeGame(8), PACK_01, 2000, seededRng(1)), "shop", 1);
     state = buyUpgrade(state, "blue", "mfa", state.updatedAt + 10);
     expect(() => buyUpgrade(state, "blue", "mfa", state.updatedAt + 20)).toThrow(/already/i);
-    // budget is 750: mfa(320) + edr(360) = 680, leaving 70; logging(240) can't be afforded.
+    // budget is 13: mfa(5) + edr(6) = 11, leaving 2; logging(4) can't be afforded.
     state = buyUpgrade(state, "blue", "edr", state.updatedAt + 30);
     expect(() => buyUpgrade(state, "blue", "logging", state.updatedAt + 50)).toThrow(/not enough/i);
   });
@@ -87,9 +87,9 @@ describe("economy + shop", () => {
   it("insurance grants money now but adds a premium that lowers later income", () => {
     let state = advanceUntil(startGame(makeGame(8), PACK_01, 2000, seededRng(1)), "shop", 1);
     const before = state.economy.red.money;
-    state = buyUpgrade(state, "red", "warchest", state.updatedAt + 10); // cost 120, +450, premium 110
-    expect(state.economy.red.money).toBe(before - 120 + 450);
-    expect(state.economy.red.premium).toBe(110);
+    state = buyUpgrade(state, "red", "warchest", state.updatedAt + 10); // cost 2, +7, premium 2
+    expect(state.economy.red.money).toBe(before - 2 + 7);
+    expect(state.economy.red.premium).toBe(2);
   });
 
   it("Red 'Press the Breach' raises company damage immediately", () => {

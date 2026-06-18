@@ -9,7 +9,6 @@ import {
   DebriefBlock,
   ScoreboardSquads,
   FinalBlock,
-  ShopBoard,
   CompanyDamageMeter,
 } from "@/components/panels";
 import { Win } from "@/components/console";
@@ -121,29 +120,14 @@ export default function ProjectorPage() {
             )}
 
             {pub.phase === "shop" && (
-              <div className="space-y-6">
-                <div className="text-center">
-                  <p className="font-mono text-base uppercase tracking-[0.3em] text-paper/40">// strategy phase</p>
-                  <h1 className="mt-2 font-display text-5xl font-black">Teams commit their buys</h1>
-                  <div className="mx-auto mt-4 max-w-xs">
-                    <Countdown deadline={pub.phaseDeadline} totalSeconds={pub.settings.shopSeconds} big />
-                  </div>
-                </div>
-                <div className="grid gap-6 md:grid-cols-2">
-                  {(["red", "blue"] as const).map((t) => (
-                    <ShopBoard
-                      key={t}
-                      team={t}
-                      economy={pub.economy[t]}
-                      code={code}
-                      votes={pub.shopVotes[t]}
-                      leaderName={pub.players.find((p) => p.id === pub.leaders[t])?.name ?? null}
-                      meId={null}
-                      canVote={false}
-                      canBuy={false}
-                      onChange={() => {}}
-                    />
-                  ))}
+              <div className="py-10 text-center">
+                <p className="font-mono text-base uppercase tracking-[0.3em] text-paper/40">// strategy phase</p>
+                <h1 className="mt-2 font-display text-5xl font-black">Teams are planning in private</h1>
+                <p className="mt-3 text-2xl text-paper/55">
+                  Red and Blue are choosing their gear. Loadouts stay secret until they're used.
+                </p>
+                <div className="mx-auto mt-6 max-w-xs">
+                  <Countdown deadline={pub.phaseDeadline} totalSeconds={pub.settings.shopSeconds} big />
                 </div>
               </div>
             )}

@@ -61,7 +61,7 @@ const before = st.economy.blue.money;
 const buy = await req(blueLeader.jar, "POST", `/api/games/${code}/shop`, { kind: "buy", team: "blue", upgradeId: "mfa" });
 check("the team leader can buy", buy.status === 200);
 st = await state();
-check("money deducted + upgrade owned", st.economy.blue.money === before - 320 && st.economy.blue.upgrades.includes("mfa"));
+check("money deducted + upgrade owned", st.economy.blue.money === before - 5 && st.economy.blue.upgrades.includes("mfa"));
 
 // Host can NOT buy, teams own their strategy now.
 const hostBuy = await req(host, "POST", `/api/games/${code}/shop`, { kind: "buy", team: "red", upgradeId: "recon" });

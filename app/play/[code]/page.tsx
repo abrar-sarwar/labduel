@@ -336,6 +336,8 @@ export default function PlayPage() {
                     meId={view?.you.id ?? null}
                     canVote
                     canBuy={isLeader}
+                    companyDamage={pub.companyDamage}
+                    behind={team === "red" ? pub.scores.red < pub.scores.blue : pub.scores.blue < pub.scores.red}
                     onChange={refetch}
                   />
                 </>

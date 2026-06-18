@@ -359,6 +359,8 @@ export default function HostPage() {
                         meId={null}
                         canVote={false}
                         canBuy={false}
+                        companyDamage={pub.companyDamage}
+                        behind={t === "red" ? pub.scores.red < pub.scores.blue : pub.scores.blue < pub.scores.red}
                         onChange={() => {}}
                       />
                     ))}

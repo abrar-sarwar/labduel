@@ -222,6 +222,32 @@ export function MoneyTag({ amount, team }: { amount: number; team?: Team }) {
  * One team's shop board. Teammates upvote (`canVote`); the team leader commits the
  * buy (`canBuy`). Host/projector views are read-only with the vote tallies shown.
  */
+/** "What you gotta get": up to 2 suggested items given the board state. */
+function recommendIds(
+  team: Team,
+  ownedIds: string[],
+  companyDamage: number,
+  behind: boolean
+): Set<string> {
+  const pool = upgradesForTeam(team).filter((u) => !ownedIds.includes(u.id));
+  const score = (u: (typeof pool)[number]) => {
+    let s = 0;
+    const k = u.effect.kind;
+    if (behind && k === "insurance") s += 5; // comeback funding
+    if (team === "blue") {
+      if (companyDamage >= 50 && k === "reduceDamage") s += 4;
+      if (companyDamage >= 30 && k === "defenseSlot") s += 2;
+    } else {
+      if (companyDamage >= 40 && (k === "addDamage" || k === "breachBonus")) s += 4;
+    }
+    if (k === "scoreNextRound") s += 1; // always decent
+    return s;
+  };
+  return new Set(
+    [...pool].sort((a, b) => score(b) - score(a)).slice(0, 2).map((u) => u.id)
+  );
+}
+
 export function ShopBoard({
   team,
   economy,
@@ -231,6 +257,8 @@ export function ShopBoard({
   meId,
   canVote,
   canBuy,
+  companyDamage = 0,
+  behind = false,
   onChange,
 }: {
   team: Team;
@@ -241,12 +269,17 @@ export function ShopBoard({
   meId: string | null;
   canVote: boolean;
   canBuy: boolean;
+  companyDamage?: number;
+  behind?: boolean;
   onChange: () => void;
 }) {
   const c = teamClasses(team);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const catalog = upgradesForTeam(team);
+  const all = upgradesForTeam(team);
+  const owned = all.filter((u) => economy.upgrades.includes(u.id));
+  const catalog = all.filter((u) => !economy.upgrades.includes(u.id));
+  const recommended = recommendIds(team, economy.upgrades, companyDamage, behind);
 
   async function act(body: object, id: string) {
     setBusyId(id);
@@ -288,26 +321,56 @@ export function ShopBoard({
         </div>
       </div>
 
-      <div className="mt-3 space-y-2">
+      {/* items you have */}
+      <div className="mt-3">
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-paper/40">
+          // your kit ({owned.length})
+        </p>
+        {owned.length === 0 ? (
+          <p className="mt-1 font-mono text-[0.7rem] text-paper/30">no items yet, spend below</p>
+        ) : (
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {owned.map((u) => (
+              <span
+                key={u.id}
+                title={u.blurb}
+                className={cn("rounded-[5px] border px-2 py-1 font-mono text-[0.66rem]", c.border, c.soft, c.text)}
+              >
+                {u.name}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* items you could get */}
+      <p className="mt-4 font-mono text-[0.62rem] uppercase tracking-[0.2em] text-paper/40">
+        // available
+      </p>
+      <div className="mt-1.5 space-y-2">
         {catalog.map((u) => {
-          const owned = economy.upgrades.includes(u.id);
           const affordable = economy.money >= u.cost;
           const voters = votes[u.id] ?? [];
           const iVoted = meId != null && voters.includes(meId);
+          const suggested = recommended.has(u.id);
           return (
             <div
               key={u.id}
               className={cn(
                 "rounded-[6px] border p-3 transition",
-                owned ? "border-mint/40 bg-mint/5" : "border-white/10 bg-white/[0.015]"
+                suggested ? "border-gold/40 bg-gold/[0.04]" : "border-white/10 bg-white/[0.015]"
               )}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <p className="font-display text-sm font-bold">{u.name}</p>
-                    {owned && <span className="font-mono text-[0.58rem] uppercase tracking-[0.18em] text-mint">owned</span>}
-                    {!owned && voters.length > 0 && (
+                    {suggested && (
+                      <span className="rounded-[4px] bg-gold/15 px-1.5 font-mono text-[0.58rem] font-bold uppercase tracking-[0.16em] text-gold">
+                        get this
+                      </span>
+                    )}
+                    {voters.length > 0 && (
                       <span className={cn("rounded-[4px] px-1.5 font-mono text-[0.62rem] font-bold tabular-nums", c.soft, c.text)}>
                         {voters.length} vote{voters.length === 1 ? "" : "s"}
                       </span>
@@ -318,7 +381,7 @@ export function ShopBoard({
                 </div>
                 <div className="shrink-0 space-y-1 text-right">
                   <MoneyTag amount={u.cost} />
-                  {!owned && canVote && (
+                  {canVote && (
                     <button
                       disabled={busyId !== null}
                       onClick={() => act({ kind: "vote", upgradeId: u.id }, u.id)}
@@ -330,7 +393,7 @@ export function ShopBoard({
                       {iVoted ? "voted" : "vote"}
                     </button>
                   )}
-                  {!owned && canBuy && (
+                  {canBuy && (
                     <button
                       disabled={!affordable || busyId !== null}
                       onClick={() => act({ kind: "buy", team, upgradeId: u.id }, u.id)}
@@ -347,6 +410,9 @@ export function ShopBoard({
             </div>
           );
         })}
+        {catalog.length === 0 && (
+          <p className="font-mono text-[0.7rem] text-paper/30">all items owned</p>
+        )}
       </div>
       {err && <p className="mt-2 font-mono text-xs text-danger">! {err}</p>}
     </Win>
