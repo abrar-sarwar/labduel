@@ -1,11 +1,11 @@
 import { shopActionSchema } from "@/lib/shared/schemas";
 import { buyUpgrade, toggleShopVote } from "@/lib/engine";
 import { registry } from "@/lib/server/registry";
-import { isHost, getPlayerId } from "@/lib/server/auth";
+import { getPlayerId } from "@/lib/server/auth";
 import { ok, fail, parseBody, errorResponse } from "@/lib/server/http";
 
-// Teammates vote for upgrades; the team leader commits the purchase (the host can
-// also commit as a fallback). Buying is no longer host-driven by default.
+// Teammates vote for upgrades; ONLY the team's leader commits the purchase.
+// The host does not buy, teams own their own strategy.
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ code: string }> }
@@ -27,10 +27,9 @@ export async function POST(
       return ok({ ok: true });
     }
 
-    // buy: only the team's leader (or the host) may commit.
-    const host = await isHost(code);
+    // buy: only the team's leader may commit.
     const isLeader = playerId != null && game.leaders[input.team] === playerId;
-    if (!host && !isLeader)
+    if (!isLeader)
       return fail(403, "forbidden", "Only the team leader can buy");
 
     registry.mutate(code, (state) => buyUpgrade(state, input.team, input.upgradeId, Date.now()));

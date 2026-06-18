@@ -41,6 +41,7 @@ export function TaskCard({
   // local answer state
   const [choice, setChoice] = useState<string | null>(null);
   const [pairs, setPairs] = useState<Record<string, string>>({});
+  const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,14 +52,22 @@ export function TaskCard({
   const canSubmit =
     !locked &&
     !busy &&
-    (task.type === "match" ? matchComplete : choice != null);
+    (task.type === "match"
+      ? matchComplete
+      : task.type === "type"
+        ? text.trim().length > 0
+        : choice != null);
 
   async function submit() {
     setBusy(true);
     setError(null);
     try {
       const answer =
-        task.type === "match" ? { pairs } : { optionId: choice };
+        task.type === "match"
+          ? { pairs }
+          : task.type === "type"
+            ? { text }
+            : { optionId: choice };
       await postAction(`/api/games/${code}/submit`, { taskId: task.id, answer });
       onSubmitted();
     } catch (e) {
@@ -144,6 +153,30 @@ export function TaskCard({
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {task.type === "type" && (
+          <div>
+            {task.reference && (
+              <div className="mb-2">
+                <p className="eyebrow mb-1">Type this exactly</p>
+                <p className="select-all rounded-lg border border-gold/30 bg-gold/5 px-4 py-3 font-mono text-sm text-gold">
+                  {task.reference}
+                </p>
+              </div>
+            )}
+            <input
+              value={text}
+              disabled={locked || revealed}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && canSubmit && submit()}
+              placeholder={task.placeholder ?? "Type your answer…"}
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
+              className="h-12 w-full rounded-xl border border-white/12 bg-ink-700/70 px-4 font-mono text-paper placeholder:text-paper/30 outline-none transition focus:border-gold/60 focus:ring-2 focus:ring-gold/20 disabled:opacity-60"
+            />
           </div>
         )}
       </div>

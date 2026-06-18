@@ -63,9 +63,9 @@ check("the team leader can buy", buy.status === 200);
 st = await state();
 check("money deducted + upgrade owned", st.economy.blue.money === before - 320 && st.economy.blue.upgrades.includes("mfa"));
 
-// Host can still buy as a fallback.
+// Host can NOT buy, teams own their strategy now.
 const hostBuy = await req(host, "POST", `/api/games/${code}/shop`, { kind: "buy", team: "red", upgradeId: "recon" });
-check("host fallback buy works", hostBuy.status === 200);
+check("host cannot buy (403)", hostBuy.status === 403);
 
 // Host can change a team's leader.
 const newLeader = players.find((p) => st.players.find((q) => q.id === p.id)?.team === "blue" && p.id !== st.leaders.blue);

@@ -6,6 +6,11 @@ import type { TaskDef } from "../shared/content-types";
 
 const SPEED_BONUS_FRACTION = 0.25; // up to +25% of base for instant correct answers
 
+/** Forgiving normalization for typed answers: trim, collapse spaces, lowercase. */
+export function normalizeText(s: string): string {
+  return s.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
 export function validateAnswer(task: TaskDef, answer: unknown): boolean {
   if (answer == null || typeof answer !== "object") return false;
   const a = answer as Record<string, unknown>;
@@ -14,6 +19,8 @@ export function validateAnswer(task: TaskDef, answer: unknown): boolean {
     case "classify":
     case "fillBlank":
       return typeof a.optionId === "string" && a.optionId === task.answerId;
+    case "type":
+      return typeof a.text === "string" && normalizeText(a.text) === normalizeText(task.answer);
     case "match": {
       const pairs = a.pairs;
       if (pairs == null || typeof pairs !== "object") return false;

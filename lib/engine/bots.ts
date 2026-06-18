@@ -67,7 +67,9 @@ export function botsAutoSubmit(
     for (const task of tasksForPlayer(rc, bot)) {
       const correct = rng() < 0.78;
       let answer: unknown;
-      if (task.type === "match") {
+      if (task.type === "type") {
+        answer = { text: correct ? task.answer : "incorrect entry" };
+      } else if (task.type === "match") {
         if (correct) {
           answer = { pairs: { ...task.answer } };
         } else {

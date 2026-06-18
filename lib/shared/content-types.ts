@@ -3,7 +3,7 @@
 
 import type { Team } from "./roles";
 
-export type TaskType = "classify" | "fillBlank" | "match";
+export type TaskType = "classify" | "fillBlank" | "match" | "type";
 
 export interface TaskOption {
   id: string;
@@ -46,7 +46,19 @@ export interface MatchTask extends TaskBase {
   answer: Record<string, string>;
 }
 
-export type TaskDef = ClassifyTask | FillBlankTask | MatchTask;
+export interface TypeTask extends TaskBase {
+  type: "type";
+  /**
+   * Optional text shown to copy exactly ("bar for bar"). When present the UI shows
+   * it; when absent the player must recall the answer from the prompt.
+   */
+  reference?: string;
+  placeholder?: string;
+  /** PRIVATE, server only. The expected text (whitespace/case-normalized). */
+  answer: string;
+}
+
+export type TaskDef = ClassifyTask | FillBlankTask | MatchTask | TypeTask;
 
 export interface SideMission {
   /** Short framing line for this side this round. */
@@ -104,10 +116,11 @@ export interface ScenarioPack {
 export type PublicTask =
   | (Omit<ClassifyTask, "answerId">)
   | (Omit<FillBlankTask, "answerId">)
-  | (Omit<MatchTask, "answer">);
+  | (Omit<MatchTask, "answer">)
+  | (Omit<TypeTask, "answer">);
 
 export function toPublicTask(task: TaskDef): PublicTask {
-  if (task.type === "match") {
+  if (task.type === "match" || task.type === "type") {
     const { answer: _a, ...rest } = task;
     return rest;
   }

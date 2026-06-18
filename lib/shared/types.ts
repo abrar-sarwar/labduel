@@ -61,8 +61,8 @@ export interface TeamEconomy {
 export type Economy = Record<Team, TeamEconomy>;
 
 export const STARTING_ECONOMY: () => Economy = () => ({
-  red: { money: 600, upgrades: [], premium: 0, nextRoundBonusPct: 0 },
-  blue: { money: 600, upgrades: [], premium: 0, nextRoundBonusPct: 0 },
+  red: { money: 450, upgrades: [], premium: 0, nextRoundBonusPct: 0 },
+  blue: { money: 450, upgrades: [], premium: 0, nextRoundBonusPct: 0 },
 });
 
 export interface Player {

@@ -299,8 +299,8 @@ export default function HostPage() {
                         <p className="eyebrow">Strategy &amp; economy</p>
                         <h2 className="font-display text-2xl font-black">Teams vote, leaders buy</h2>
                         <p className="mt-1 text-sm text-paper/60">
-                          Players upvote on their phones; each team&apos;s leader commits. You can
-                          buy as a fallback or change a leader below.
+                          Players upvote on their phones; each team&apos;s leader commits the buys.
+                          You just watch the tallies, and can swap a leader below if needed.
                         </p>
                       </div>
                       <div className="w-32 shrink-0">
@@ -350,7 +350,7 @@ export default function HostPage() {
                         leaderName={pub.players.find((p) => p.id === pub.leaders[t])?.name ?? null}
                         meId={null}
                         canVote={false}
-                        canBuy
+                        canBuy={false}
                         onChange={() => {}}
                       />
                     ))}

@@ -16,8 +16,8 @@ import { assignTeamsAndSquads, placeWaitingPlayers } from "./assign";
 import { rolesForTeam } from "../shared/roles";
 import { getUpgrade } from "../content/upgrades";
 
-const SHOP_BASE_INCOME = 500;
-const SHOP_WINNER_BONUS = 250;
+const SHOP_BASE_INCOME = 300;
+const SHOP_WINNER_BONUS = 150;
 const DAMAGE_ON_RED_WIN = 15;
 const RECOVERY_ON_BLUE_WIN = 8;
 

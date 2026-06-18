@@ -43,6 +43,7 @@ export const fillBlankAnswerSchema = z.object({ optionId: z.string().min(1) });
 export const matchAnswerSchema = z.object({
   pairs: z.record(z.string(), z.string()),
 });
+export const typeAnswerSchema = z.object({ text: z.string().min(1).max(300) });
 
 export const submitTaskSchema = z.object({
   taskId: z.string().min(1),
@@ -50,6 +51,7 @@ export const submitTaskSchema = z.object({
     classifyAnswerSchema,
     fillBlankAnswerSchema,
     matchAnswerSchema,
+    typeAnswerSchema,
   ]),
 });
 

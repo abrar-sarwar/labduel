@@ -39,6 +39,9 @@ describe("scenario pack integrity", () => {
           } else if (task.type === "fillBlank") {
             expect(task.template).toContain("___");
             expect(task.options.map((o) => o.id)).toContain(task.answerId);
+          } else if (task.type === "type") {
+            expect(task.answer.trim().length).toBeGreaterThan(0);
+            if (task.reference) expect(task.reference.length).toBeGreaterThan(0);
           } else {
             const leftIds = task.left.map((l) => l.id);
             const rightIds = task.right.map((r) => r.id);

@@ -33,8 +33,8 @@ function advanceUntil(state: GameState, phase: string, seed = 1): GameState {
 describe("economy + shop", () => {
   it("starts each team with the starting budget and no damage", () => {
     const state = makeGame(8);
-    expect(state.economy.red.money).toBe(600);
-    expect(state.economy.blue.money).toBe(600);
+    expect(state.economy.red.money).toBe(450);
+    expect(state.economy.blue.money).toBe(450);
     expect(state.companyDamage).toBe(0);
   });
 
@@ -42,9 +42,9 @@ describe("economy + shop", () => {
     let state = startGame(makeGame(8), PACK_01, 2000, seededRng(1));
     state = advanceUntil(state, "shop", 1);
     expect(state.phase).toBe("shop");
-    // base income of 500 (no premium yet) added to the starting 600
-    expect(state.economy.red.money).toBeGreaterThanOrEqual(1100);
-    expect(state.economy.blue.money).toBeGreaterThanOrEqual(1100);
+    // starting 450 + base income 300 (no submissions => 0-0, no winner bonus)
+    expect(state.economy.red.money).toBe(750);
+    expect(state.economy.blue.money).toBe(750);
   });
 
   it("rejects buying outside the shop phase", () => {
@@ -65,10 +65,8 @@ describe("economy + shop", () => {
     let state = advanceUntil(startGame(makeGame(8), PACK_01, 2000, seededRng(1)), "shop", 1);
     state = buyUpgrade(state, "blue", "mfa", state.updatedAt + 10);
     expect(() => buyUpgrade(state, "blue", "mfa", state.updatedAt + 20)).toThrow(/already/i);
-    // drain the budget then try an expensive item
-    state = buyUpgrade(state, "blue", "edr", state.updatedAt + 30); // 360
-    state = buyUpgrade(state, "blue", "backups", state.updatedAt + 40); // 300
-    // remaining ~ 1100 - 320 - 360 - 300 = 120; logging costs 240
+    // budget is 750: mfa(320) + edr(360) = 680, leaving 70; logging(240) can't be afforded.
+    state = buyUpgrade(state, "blue", "edr", state.updatedAt + 30);
     expect(() => buyUpgrade(state, "blue", "logging", state.updatedAt + 50)).toThrow(/not enough/i);
   });
 
