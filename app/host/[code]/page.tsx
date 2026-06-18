@@ -17,6 +17,7 @@ import {
 } from "@/components/panels";
 import { OverrideConsole } from "@/components/override";
 import { Button, Toggle } from "@/components/ui";
+import { Win, StatusPill } from "@/components/console";
 import type { Phase, PublicState } from "@/lib/shared/types";
 
 function nextAction(pub: PublicState): { label: string; action: "start" | "advance" } | null {
@@ -121,7 +122,7 @@ export default function HostPage() {
         status={status}
         right={
           <Link href={`/projector/${code}`} target="_blank" className="hidden sm:block">
-            <Button variant="ghost" size="sm">Projector ↗</Button>
+            <Button variant="ghost" size="sm">Projector view</Button>
           </Link>
         }
       />
@@ -129,9 +130,13 @@ export default function HostPage() {
       <div className="mx-auto max-w-5xl px-4 pt-5">
         {/* ───── LOBBY ───── */}
         {pub.phase === "lobby" ? (
-          <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
-            <div className="panel flex flex-col items-center justify-center p-8 text-center">
-              <p className="eyebrow">Room code, go to /join</p>
+          <div className="grid gap-4 lg:grid-cols-[1fr_1.1fr]">
+            <Win
+              title="// session code"
+              right={<StatusPill tone="info" pulse>open</StatusPill>}
+              bodyClass="flex flex-col items-center justify-center text-center p-6"
+            >
+              <p className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-paper/40">join at /join</p>
               <p className="my-3 font-display text-7xl font-black tracking-[0.15em] text-gold">
                 {code}
               </p>
@@ -140,46 +145,45 @@ export default function HostPage() {
               </Button>
               <div className="mt-6 grid w-full grid-cols-3 gap-2 text-center">
                 {[
-                  ["Players", pub.playerCount],
-                  ["Rounds", pub.roundCount],
-                  ["Squad size", pub.settings.squadSize],
+                  ["players", pub.playerCount],
+                  ["rounds", pub.roundCount],
+                  ["squad", pub.settings.squadSize],
                 ].map(([k, v]) => (
-                  <div key={k} className="rounded-lg border border-white/10 bg-ink-700/40 py-3">
-                    <p className="font-display text-2xl font-black tabular-nums">{v}</p>
-                    <p className="text-[0.65rem] uppercase tracking-widest text-paper/50">{k}</p>
+                  <div key={k} className="rounded-[6px] border border-white/10 bg-white/[0.015] py-3">
+                    <p className="font-mono text-2xl font-bold tabular-nums">{v}</p>
+                    <p className="font-mono text-[0.6rem] uppercase tracking-[0.18em] text-paper/45">{k}</p>
                   </div>
                 ))}
               </div>
-            </div>
+            </Win>
 
-            <div className="panel p-6">
-              <div className="flex items-center justify-between">
-                <p className="eyebrow">In the lobby</p>
-                <span className="font-mono text-xs text-paper/50">{pub.playerCount} joined</span>
-              </div>
+            <Win
+              title="// roster"
+              right={<span className="font-mono text-xs tabular-nums text-paper/50">{pub.playerCount} joined</span>}
+            >
               {pub.settings.teamMode === "auto" ? (
-                <div className="mt-4 flex min-h-[120px] flex-wrap content-start gap-2">
+                <div className="flex min-h-[120px] flex-wrap content-start gap-2">
                   {pub.players.length === 0 && (
-                    <p className="text-sm text-paper/40">Waiting for players to join…</p>
+                    <p className="font-mono text-sm text-paper/40">// waiting for players…</p>
                   )}
                   {pub.players.map((p) => (
                     <span
                       key={p.id}
-                      className="animate-pop rounded-full border border-white/12 bg-ink-700/60 px-3 py-1.5 text-sm"
+                      className="animate-pop rounded-[5px] border border-white/12 bg-white/[0.03] px-2.5 py-1 font-mono text-sm"
                     >
                       {p.name}
                     </span>
                   ))}
                 </div>
               ) : (
-                <div className="mt-4 min-h-[120px] space-y-1.5">
+                <div className="min-h-[120px] space-y-1.5">
                   {pub.players.length === 0 && (
-                    <p className="text-sm text-paper/40">Waiting for players to join…</p>
+                    <p className="font-mono text-sm text-paper/40">// waiting for players…</p>
                   )}
                   {pub.players.map((p) => (
                     <div
                       key={p.id}
-                      className="flex items-center justify-between gap-2 rounded-lg border border-white/10 bg-ink-700/40 px-3 py-1.5"
+                      className="flex items-center justify-between gap-2 rounded-[6px] border border-white/10 bg-white/[0.015] px-3 py-1.5"
                     >
                       <span className="text-sm">{p.name}</span>
                       <div className="flex gap-1">
@@ -190,7 +194,7 @@ export default function HostPage() {
                             <button
                               key={t}
                               onClick={() => lobbySetTeam(p.id, t)}
-                              className={`rounded-md px-2 py-1 font-display text-[0.65rem] font-bold uppercase transition ${
+                              className={`rounded-[4px] px-2 py-1 font-mono text-[0.62rem] font-bold uppercase tracking-[0.1em] transition ${
                                 on ? tc : "border border-white/15 text-paper/50 hover:bg-white/10"
                               }`}
                             >
@@ -201,22 +205,22 @@ export default function HostPage() {
                       </div>
                     </div>
                   ))}
-                  <p className="pt-1 text-xs text-paper/45">
+                  <p className="pt-1 font-mono text-[0.66rem] text-paper/45">
                     {pub.settings.teamMode === "choose"
-                      ? "Players pick their own side; you can override here."
+                      ? "Players pick their own side. You can override here."
                       : "Tap Red or Blue to assign each player."}
                   </p>
                 </div>
               )}
               <div
-                className={`mt-5 flex items-start justify-between gap-4 rounded-xl border px-4 py-3 ${
+                className={`mt-5 flex items-start justify-between gap-4 rounded-[6px] border px-4 py-3 ${
                   pub.settings.insiderThreat ? "border-red-team/40 bg-red-team/5" : "border-white/10"
                 }`}
               >
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-paper/90">Insider Threat</span>
-                    <span className="chip border-red-team/40 bg-red-team/10 text-red-team">Hidden role</span>
+                    <span className="chip border-red-team/40 bg-red-team/10 text-red-team">hidden role</span>
                   </div>
                   <p className="mt-1 text-xs text-paper/55">
                     Secretly turns one Blue player against their team. Needs 3+ Blue.
@@ -237,17 +241,15 @@ export default function HostPage() {
               >
                 {canStart ? "Start game" : "Need at least 2 players"}
               </Button>
-              {error && <p className="mt-3 text-sm text-danger">{error}</p>}
+              {error && <p className="mt-3 font-mono text-xs text-danger">! {error}</p>}
 
-              <div className="mt-4 rounded-xl border border-dashed border-mint/30 bg-mint/5 p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <p className="font-display text-sm font-bold text-mint">Test mode</p>
-                    <p className="text-xs text-paper/55">
-                      Add bot players so you can run the whole game solo. They auto-answer each round.
-                    </p>
-                  </div>
+              <div className="mt-4 rounded-[6px] border border-dashed border-mint/30 bg-mint/5 p-3">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[0.6rem] uppercase tracking-[0.18em] text-mint">// test harness</span>
                 </div>
+                <p className="mt-1 text-xs text-paper/55">
+                  Inject bot players to run a full game solo. Bots auto-answer each round.
+                </p>
                 <div className="mt-2 flex gap-2">
                   <Button variant="outline" size="sm" onClick={() => addTestPlayers(6)}>
                     + 6 bots
@@ -257,26 +259,29 @@ export default function HostPage() {
                   </Button>
                 </div>
               </div>
-            </div>
+            </Win>
           </div>
         ) : (
           /* ───── IN-GAME ───── */
-          <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-            <div className="space-y-5">
+          <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+            <div className="space-y-4">
               {pub.phase === "roundBriefing" && pub.round && (
-                <div className="panel p-6">
+                <Win title="// coin flip">
                   <CoinFlip initiative={pub.round.initiative} round={pub.round.number} bonus={pub.round.bonus} />
-                </div>
+                </Win>
               )}
               {(pub.phase === "roundBriefing" || pub.phase === "active" || pub.phase === "submissionLock") &&
                 pub.round && <MissionBrief round={pub.round} />}
 
               {pub.phase === "active" && pub.round && (
-                <div className="panel p-6">
+                <Win
+                  title="// submissions"
+                  right={<StatusPill tone="ok" pulse>live</StatusPill>}
+                >
                   <div className="flex items-center justify-between gap-6">
                     <div>
-                      <p className="eyebrow">Submissions in</p>
-                      <p className="font-display text-4xl font-black tabular-nums">
+                      <p className="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-paper/45">received</p>
+                      <p className="font-mono text-4xl font-bold tabular-nums">
                         {pub.round.submittedCount}
                         <span className="text-paper/40">/{pub.round.expectedCount}</span>
                       </p>
@@ -285,7 +290,7 @@ export default function HostPage() {
                       <Countdown deadline={pub.round.deadline} totalSeconds={pub.settings.roundSeconds} />
                     </div>
                   </div>
-                </div>
+                </Win>
               )}
 
               {pub.phase === "debrief" && pub.debrief && <DebriefBlock debrief={pub.debrief} />}
@@ -293,25 +298,23 @@ export default function HostPage() {
 
               {pub.phase === "shop" && (
                 <div className="space-y-4">
-                  <div className="panel p-5">
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <p className="eyebrow">Strategy &amp; economy</p>
-                        <h2 className="font-display text-2xl font-black">Teams vote, leaders buy</h2>
-                        <p className="mt-1 text-sm text-paper/60">
-                          Players upvote on their phones; each team&apos;s leader commits the buys.
-                          You just watch the tallies, and can swap a leader below if needed.
-                        </p>
-                      </div>
-                      <div className="w-32 shrink-0">
+                  <Win
+                    title="// strategy & economy"
+                    right={
+                      <div className="w-28 shrink-0">
                         <Countdown deadline={pub.phaseDeadline} totalSeconds={pub.settings.shopSeconds} />
                       </div>
-                    </div>
+                    }
+                  >
+                    <p className="text-sm leading-relaxed text-paper/60">
+                      Players upvote buys on their phones. Each team&apos;s leader commits the
+                      purchases. Watch the tallies, and reassign a leader below if needed.
+                    </p>
                     <div className="mt-3 grid gap-2 sm:grid-cols-2">
                       {(["red", "blue"] as const).map((t) => (
-                        <label key={t} className="flex items-center gap-2 text-xs text-paper/60">
+                        <label key={t} className="flex items-center gap-2 font-mono text-[0.66rem] uppercase tracking-[0.1em] text-paper/60">
                           <span className={t === "red" ? "text-red-team" : "text-blue-team"}>
-                            {t === "red" ? "Red" : "Blue"} leader
+                            {t === "red" ? "red" : "blue"} lead
                           </span>
                           <select
                             value={pub.leaders[t] ?? ""}
@@ -322,7 +325,7 @@ export default function HostPage() {
                                 playerId: e.target.value,
                               }).catch(() => {})
                             }
-                            className="h-8 flex-1 rounded-lg border border-white/12 bg-ink-800 px-2 text-paper"
+                            className="h-8 flex-1 rounded-[5px] border border-white/12 bg-ink-800 px-2 font-sans text-paper"
                           >
                             <option value="" disabled>
                               none
@@ -338,7 +341,7 @@ export default function HostPage() {
                         </label>
                       ))}
                     </div>
-                  </div>
+                  </Win>
                   <div className="grid gap-4 md:grid-cols-2">
                     {(["red", "blue"] as const).map((t) => (
                       <ShopBoard
@@ -366,36 +369,37 @@ export default function HostPage() {
             </div>
 
             {/* Right rail: control + scores + roster */}
-            <div className="space-y-5">
-              <div className="panel p-5">
-                <p className="eyebrow">Host control</p>
-                <p className="mt-1 mb-3 text-sm text-paper/60">{PHASE_HINT[pub.phase]}</p>
+            <div className="space-y-4">
+              <Win
+                title="// host control"
+                right={<StatusPill tone="info">{pub.phase}</StatusPill>}
+              >
+                <p className="mb-3 text-sm leading-relaxed text-paper/60">{PHASE_HINT[pub.phase]}</p>
                 {na && (
                   <Button onClick={() => act(na.action)} disabled={busy} size="lg" className="w-full">
                     {na.label}
                   </Button>
                 )}
                 {pub.phase === "active" && (
-                  <p className="mt-2 text-center text-xs text-paper/40">
-                    Locking early scores everyone&apos;s current answers.
+                  <p className="mt-2 text-center font-mono text-[0.66rem] text-paper/40">
+                    Locking early scores all current answers.
                   </p>
                 )}
-                {error && <p className="mt-3 text-sm text-danger">{error}</p>}
-              </div>
+                {error && <p className="mt-3 font-mono text-xs text-danger">! {error}</p>}
+              </Win>
 
-              <div className="panel p-5">
+              <Win title="// scoreboard">
                 <ScoreBar red={pub.scores.red} blue={pub.scores.blue} />
                 <div className="mt-4">
                   <CompanyDamageMeter value={pub.companyDamage} compact />
                 </div>
-              </div>
+              </Win>
 
               {moderation && <HostModerationPanel moderation={moderation} />}
 
-              <div className="panel p-5">
-                <p className="eyebrow mb-3">Squads</p>
+              <Win title="// squads">
                 <ScoreboardSquads squads={pub.squads} />
-              </div>
+              </Win>
 
               <OverrideConsole pub={pub} code={code} onChange={() => {}} />
             </div>

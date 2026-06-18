@@ -2,7 +2,8 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Logo, Button, TextInput, Eyebrow } from "@/components/ui";
+import { Logo, Button, TextInput } from "@/components/ui";
+import { Win, StatusPill, FieldLabel } from "@/components/console";
 import { postAction } from "@/components/hooks";
 
 function JoinForm() {
@@ -27,18 +28,20 @@ function JoinForm() {
   }
 
   return (
-    <div className="animate-rise panel p-7">
-      <Eyebrow>Join a game</Eyebrow>
-      <h1 className="mt-2 font-display text-3xl font-black">Enter the arena</h1>
-      <p className="mt-1 text-sm text-paper/60">
-        Get the room code from your host&apos;s screen.
+    <Win
+      className="animate-rise"
+      title="// connect to session"
+      right={<StatusPill tone="info" pulse>standby</StatusPill>}
+    >
+      <p className="text-sm text-paper/60">
+        Enter the session code shown on the host or projector screen.
       </p>
 
-      <div className="mt-6 space-y-4">
+      <div className="mt-5 space-y-4">
         <div>
-          <label className="eyebrow">Room code</label>
+          <FieldLabel hint="4-6 chars">session code</FieldLabel>
           <TextInput
-            className="mt-2 text-center font-mono text-3xl font-bold uppercase tracking-[0.4em]"
+            className="text-center font-mono text-3xl font-bold uppercase tracking-[0.4em]"
             placeholder="ABCD"
             maxLength={6}
             autoCapitalize="characters"
@@ -47,9 +50,8 @@ function JoinForm() {
           />
         </div>
         <div>
-          <label className="eyebrow">Display name</label>
+          <FieldLabel hint="max 20">display name</FieldLabel>
           <TextInput
-            className="mt-2"
             placeholder="Your name"
             maxLength={20}
             value={name}
@@ -59,7 +61,7 @@ function JoinForm() {
         </div>
       </div>
 
-      {error && <p className="mt-4 text-sm text-danger">{error}</p>}
+      {error && <p className="mt-4 font-mono text-xs text-danger">! {error}</p>}
 
       <Button
         onClick={join}
@@ -67,21 +69,26 @@ function JoinForm() {
         size="lg"
         className="mt-6 w-full"
       >
-        {busy ? "Joining…" : "Join game"}
+        {busy ? "Connecting…" : "Connect"}
       </Button>
-    </div>
+    </Win>
   );
 }
 
 export default function JoinPage() {
   return (
-    <main className="mx-auto max-w-md px-5 pb-20">
-      <nav className="py-6">
+    <main className="mx-auto max-w-md px-4 pb-20">
+      <nav className="flex items-center justify-between border-b border-white/10 py-3">
         <Logo />
+        <span className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-paper/35">
+          // join session
+        </span>
       </nav>
-      <Suspense fallback={<div className="panel p-7 text-paper/50">Loading…</div>}>
-        <JoinForm />
-      </Suspense>
+      <div className="mt-5">
+        <Suspense fallback={<div className="win p-4 font-mono text-sm text-paper/50">loading…</div>}>
+          <JoinForm />
+        </Suspense>
+      </div>
     </main>
   );
 }

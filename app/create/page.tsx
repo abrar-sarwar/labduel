@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Logo, Button, TextInput, Eyebrow, Toggle, Segmented } from "@/components/ui";
+import { Logo, Button, TextInput, Toggle, Segmented } from "@/components/ui";
+import { Win, StatusPill, FieldLabel } from "@/components/console";
 import { cn } from "@/lib/cn";
 import { postAction } from "@/components/hooks";
 
@@ -22,22 +23,26 @@ function Stepper({
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-white/10 bg-ink-700/50 px-4 py-3">
-      <span className="text-sm text-paper/80">{label}</span>
-      <div className="flex items-center gap-3">
+    <div className="flex items-center justify-between border-b border-white/5 py-2.5 last:border-0">
+      <span className="font-mono text-[0.72rem] uppercase tracking-[0.12em] text-paper/65">{label}</span>
+      <div className="flex items-center gap-2">
         <button
+          aria-label={`Decrease ${label}`}
           onClick={() => onChange(Math.max(min, value - 1))}
-          className="grid h-8 w-8 place-items-center rounded-lg border border-white/15 text-lg font-bold hover:bg-white/10"
+          className="grid h-8 w-8 place-items-center rounded-[5px] border border-white/15 font-mono text-lg leading-none hover:bg-white/10 disabled:opacity-30"
+          disabled={value <= min}
         >
           −
         </button>
-        <span className="w-16 text-center font-display text-xl font-black tabular-nums">
+        <span className="w-14 text-center font-mono text-xl font-bold tabular-nums">
           {value}
-          {suffix && <span className="ml-1 text-xs text-paper/50">{suffix}</span>}
+          {suffix && <span className="ml-0.5 text-xs text-paper/45">{suffix}</span>}
         </span>
         <button
+          aria-label={`Increase ${label}`}
           onClick={() => onChange(Math.min(max, value + 1))}
-          className="grid h-8 w-8 place-items-center rounded-lg border border-white/15 text-lg font-bold hover:bg-white/10"
+          className="grid h-8 w-8 place-items-center rounded-[5px] border border-white/15 font-mono text-lg leading-none hover:bg-white/10 disabled:opacity-30"
+          disabled={value >= max}
         >
           +
         </button>
@@ -79,46 +84,52 @@ export default function CreatePage() {
   }
 
   return (
-    <main className="mx-auto max-w-lg px-5 pb-20">
-      <nav className="py-6">
+    <main className="mx-auto max-w-lg px-4 pb-20">
+      <nav className="flex items-center justify-between border-b border-white/10 py-3">
         <Logo />
+        <span className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-paper/35">
+          // new session
+        </span>
       </nav>
-      <div className="animate-rise panel p-7">
-        <Eyebrow>New game</Eyebrow>
-        <h1 className="mt-2 font-display text-3xl font-black">Set up the arena</h1>
-        <p className="mt-1 text-sm text-paper/60">
-          Teams auto-balance into squads with random roles. You can start as soon as
-          2 players join.
-        </p>
 
-        <div className="mt-6 space-y-4">
-          <div>
-            <label className="eyebrow">Your host name</label>
+      <div className="animate-rise mt-5 space-y-4">
+        <Win
+          title="// session config"
+          right={<StatusPill tone="idle">draft</StatusPill>}
+        >
+          <p className="text-sm leading-relaxed text-paper/65">
+            Configure the engagement, then launch the lobby. Teams auto-balance into
+            squads with assigned roles. You can start once 2 players are in.
+          </p>
+
+          <div className="mt-5">
+            <FieldLabel hint="max 20">host callsign</FieldLabel>
             <TextInput
-              className="mt-2"
               placeholder="Coach / Host"
               maxLength={20}
               value={hostName}
               onChange={(e) => setHostName(e.target.value)}
             />
           </div>
+        </Win>
 
-          <Stepper label="Rounds" value={roundCount} min={1} max={9} onChange={setRoundCount} />
-          <p className="-mt-2 px-1 text-xs text-paper/40">
-            Full 9-round ladder: phishing → MFA → secrets → web input → detection →
-            auth bypass → containment → evasion → full incident.
+        <Win title="// engagement params">
+          <Stepper label="rounds" value={roundCount} min={1} max={9} onChange={setRoundCount} />
+          <p className="py-1 font-mono text-[0.66rem] leading-relaxed text-paper/40">
+            ladder: phishing, MFA, secrets, web input, detection, auth bypass,
+            containment, evasion, full incident.
           </p>
-          <Stepper label="Target squad size" value={squadSize} min={3} max={6} onChange={setSquadSize} />
+          <Stepper label="target squad size" value={squadSize} min={3} max={6} onChange={setSquadSize} />
 
-          <div className="rounded-xl border border-white/10 bg-ink-700/50 px-4 py-3">
-            <span className="text-sm text-paper/80">Round timer</span>
-            <div className="mt-3 grid grid-cols-4 gap-2">
+          <div className="border-t border-white/5 pt-3">
+            <FieldLabel hint={`${roundSeconds}s`}>round timer</FieldLabel>
+            <div className="grid grid-cols-4 gap-2">
               {[60, 90, 120, 180].map((s) => (
                 <button
                   key={s}
                   onClick={() => setRoundSeconds(s)}
                   className={cn(
-                    "rounded-lg border py-2 font-display text-sm font-bold transition",
+                    "rounded-[5px] border py-2 font-mono text-sm font-bold tabular-nums transition",
                     roundSeconds === s
                       ? "border-gold bg-gold text-ink"
                       : "border-white/15 text-paper/70 hover:bg-white/10"
@@ -129,71 +140,76 @@ export default function CreatePage() {
               ))}
             </div>
           </div>
+        </Win>
 
-          <div className="rounded-xl border border-white/10 bg-ink-700/50 px-4 py-3">
-            <span className="text-sm text-paper/80">Teams</span>
-            <div className="mt-2">
-              <Segmented
-                value={teamMode}
-                onChange={setTeamMode}
-                options={[
-                  { value: "auto", label: "Auto" },
-                  { value: "choose", label: "Players pick" },
-                  { value: "host", label: "Host assigns" },
-                ]}
-              />
-            </div>
-            <p className="mt-2 text-xs text-paper/45">
-              {teamMode === "auto" && "We split the room into even teams for you."}
+        <Win title="// team & role assignment">
+          <div>
+            <FieldLabel>team mode</FieldLabel>
+            <Segmented
+              value={teamMode}
+              onChange={setTeamMode}
+              options={[
+                { value: "auto", label: "Auto" },
+                { value: "choose", label: "Players pick" },
+                { value: "host", label: "Host assigns" },
+              ]}
+            />
+            <p className="mt-2 font-mono text-[0.66rem] text-paper/45">
+              {teamMode === "auto" && "Room is split into even teams automatically."}
               {teamMode === "choose" && "Players pick Red or Blue in the lobby."}
               {teamMode === "host" && "You assign players to teams in the lobby."}
             </p>
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-ink-700/50 px-4 py-3">
-            <span className="text-sm text-paper/80">Roles</span>
-            <div className="mt-2">
-              <Segmented
-                value={roleMode}
-                onChange={setRoleMode}
-                options={[
-                  { value: "random", label: "Random" },
-                  { value: "hidden", label: "Hidden" },
-                  { value: "choose", label: "Players pick" },
-                ]}
-              />
-            </div>
-            <p className="mt-2 text-xs text-paper/45">
-              {roleMode === "random" && "Random roles that everyone can see."}
-              {roleMode === "hidden" && "Random roles, but each player only sees their own."}
-              {roleMode === "choose" && "Players claim a role when roles are revealed."}
+          <div className="mt-4 border-t border-white/5 pt-4">
+            <FieldLabel>role mode</FieldLabel>
+            <Segmented
+              value={roleMode}
+              onChange={setRoleMode}
+              options={[
+                { value: "random", label: "Random" },
+                { value: "hidden", label: "Hidden" },
+                { value: "choose", label: "Players pick" },
+              ]}
+            />
+            <p className="mt-2 font-mono text-[0.66rem] text-paper/45">
+              {roleMode === "random" && "Random roles, visible to everyone."}
+              {roleMode === "hidden" && "Random roles, each player sees only their own."}
+              {roleMode === "choose" && "Players claim a role at reveal."}
             </p>
           </div>
+        </Win>
 
-          <div
-            className={cn(
-              "flex items-start justify-between gap-4 rounded-xl border px-4 py-3 transition",
-              insiderThreat ? "border-red-team/40 bg-red-team/5" : "border-white/10 bg-ink-700/50"
-            )}
-          >
+        <Win
+          title="// special rules"
+          className={cn(insiderThreat && "border-red-team/40")}
+          right={
+            <StatusPill tone={insiderThreat ? "crit" : "idle"} pulse={insiderThreat}>
+              {insiderThreat ? "armed" : "off"}
+            </StatusPill>
+          }
+        >
+          <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-paper/90">Insider Threat</span>
-                <span className="chip border-red-team/40 bg-red-team/10 text-red-team">Hidden role</span>
+                <span className="font-display text-sm font-bold text-paper/90">Insider Threat</span>
+                <span className="chip border-red-team/40 bg-red-team/10 text-red-team">hidden role</span>
               </div>
-              <p className="mt-1 text-xs text-paper/55">
-                One Blue player secretly gets Red-aligned sabotage objectives. Needs
-                3+ Blue players. They can unlock the Checkmate Protocol.
+              <p className="mt-1.5 text-xs leading-relaxed text-paper/55">
+                One Blue player secretly draws Red-aligned sabotage objectives.
+                Requires 3+ Blue players. Sustained sabotage unlocks the Checkmate Protocol.
               </p>
             </div>
             <Toggle checked={insiderThreat} onChange={setInsiderThreat} label="Insider Threat" />
           </div>
-        </div>
+        </Win>
 
-        {error && <p className="mt-4 text-sm text-danger">{error}</p>}
+        {error && (
+          <p className="font-mono text-xs text-danger">! {error}</p>
+        )}
 
-        <Button onClick={create} disabled={busy} size="lg" className="mt-6 w-full">
-          {busy ? "Creating…" : "Create room"}
+        <Button onClick={create} disabled={busy} size="lg" className="w-full">
+          {busy ? "Launching…" : "Launch lobby"}
         </Button>
       </div>
     </main>

@@ -1,24 +1,29 @@
-import { Logo, ButtonLink, Chip, Eyebrow } from "@/components/ui";
-import { LabDuelMark } from "@/components/icons";
+import { Logo, ButtonLink } from "@/components/ui";
+import { Win, StatusPill, Readout } from "@/components/console";
 
-const ROUNDS = [
-  { n: 1, t: "Phishing & social engineering", live: true },
-  { n: 2, t: "Passwords, MFA & accounts", live: true },
-  { n: 3, t: "File permissions & secrets", live: true },
-  { n: 4, t: "Web input validation", live: true },
-  { n: 5, t: "Logs, alerts & detection", live: true },
-  { n: 6, t: "Injection & auth bypass", live: true },
-  { n: 7, t: "Containment & response", live: true },
-  { n: 8, t: "Evasion vs detection", live: true },
-  { n: 9, t: "Full incident", live: true },
+const LADDER = [
+  ["01", "Phishing & social engineering"],
+  ["02", "Passwords, MFA & accounts"],
+  ["03", "File permissions & secrets"],
+  ["04", "Web input validation"],
+  ["05", "Logs, alerts & detection"],
+  ["06", "Injection & auth bypass"],
+  ["07", "Containment & response"],
+  ["08", "Evasion vs detection"],
+  ["09", "Full incident"],
 ];
 
 export default function Landing() {
   return (
-    <main className="mx-auto max-w-6xl px-5 pb-24">
-      {/* Nav */}
-      <nav className="flex items-center justify-between py-6">
-        <Logo size="md" />
+    <main className="mx-auto max-w-6xl px-4 pb-20">
+      {/* app bar */}
+      <nav className="flex items-center justify-between border-b border-white/10 py-3">
+        <div className="flex items-center gap-3">
+          <Logo size="md" />
+          <span className="hidden font-mono text-[0.66rem] uppercase tracking-[0.25em] text-paper/35 sm:inline">
+            // red-vs-blue ops console
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           <ButtonLink href="/join" variant="outline" size="sm">
             Join
@@ -29,182 +34,106 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="relative grid items-center gap-10 pt-10 md:grid-cols-[1.15fr_0.85fr] md:pt-16">
-        <div className="animate-rise">
-          <Chip className="border-gold/30 bg-gold/10 text-gold">
-            Live · Red vs Blue · Classroom-ready
-          </Chip>
-          <h1 className="mt-5 text-balance font-display text-5xl font-black leading-[0.95] sm:text-6xl md:text-7xl">
-            <span className="text-red-team">Red</span> strikes.
+      {/* primary console row */}
+      <section className="mt-5 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
+        <Win
+          title="// brief"
+          right={<StatusPill tone="ok" pulse>operational</StatusPill>}
+        >
+          <h1 className="max-w-xl font-display text-4xl font-black leading-[1.02] sm:text-5xl">
+            Run a live cyber range
             <br />
-            <span className="text-blue-team">Blue</span>{" "}
-            <span className="text-gold">defends.</span>
+            for your whole room.
           </h1>
-          <p className="mt-5 max-w-xl text-lg text-paper/70">
-            A cybersecurity game you run live with your club or class. Split the room
-            into two teams, work in small squads, and play through real security
-            scenarios. One side makes a move, the other has to answer it. It plays
-            like Kahoot, but you&apos;re running an actual incident.
+          <p className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-paper/70">
+            Split the room into Red and Blue, drop into small squads, and work a
+            real security incident together. One side moves, the other answers.
+            Coin-flip initiative, a siege board, typed commands, a team economy,
+            and a debrief after every round.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-2.5">
             <ButtonLink href="/create" variant="primary" size="lg">
-              Host a game
+              Create game
             </ButtonLink>
             <ButtonLink href="/join" variant="outline" size="lg">
               Join with a code
             </ButtonLink>
           </div>
-          <p className="mt-4 font-mono text-xs uppercase tracking-widest text-paper/40">
-            No account needed · Works on any phone · 50+ players
-          </p>
-        </div>
+          <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[0.66rem] uppercase tracking-[0.18em] text-paper/35">
+            <span>no account</span>
+            <span>any phone</span>
+            <span>50+ players</span>
+            <span>9 rounds</span>
+          </div>
+        </Win>
 
-        {/* Hero side: a stylized "round" board */}
-        <div className="animate-pop">
-          <div className="panel relative overflow-hidden p-6">
-            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-team/20 blur-2xl" />
-            <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-red-team/20 blur-2xl" />
-            <div className="relative flex items-center justify-between">
-              <span className="eyebrow">Round 02 · The Key Ring</span>
-              <span className="font-mono text-xs text-mint">● LIVE</span>
-            </div>
-            <div className="relative mt-5 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-red-team/40 bg-red-team/10 p-4">
-                <p className="font-display text-sm font-bold uppercase text-red-team">Red</p>
-                <p className="mt-1 text-xs text-paper/60">Reuse the key. Apply pressure.</p>
-                <p className="mt-3 font-display text-3xl font-black tabular-nums">240</p>
+        {/* telemetry mock */}
+        <Win title="// round 02 · the key ring" right={<StatusPill tone="ok" pulse>live</StatusPill>}>
+          <div className="space-y-2.5">
+            <Readout label="initiative" value="BLUE / +20%" tone="info" />
+            <Readout label="red squads" value="3 active" tone="crit" />
+            <Readout label="blue squads" value="3 active" tone="info" />
+            <Readout label="company breach" value="38%" tone="warn" />
+            <div className="my-3 h-px bg-white/10" />
+            <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-[6px] border border-red-team/30 bg-red-team/[0.06] p-3">
+                <p className="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-red-team">red</p>
+                <p className="font-display text-3xl font-black tabular-nums">240</p>
               </div>
-              <div className="rounded-xl border border-blue-team/40 bg-blue-team/10 p-4">
-                <p className="font-display text-sm font-bold uppercase text-blue-team">Blue</p>
-                <p className="mt-1 text-xs text-paper/60">Hold the identity perimeter.</p>
-                <p className="mt-3 font-display text-3xl font-black tabular-nums">285</p>
+              <div className="rounded-[6px] border border-blue-team/30 bg-blue-team/[0.06] p-3">
+                <p className="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-blue-team">blue</p>
+                <p className="font-display text-3xl font-black tabular-nums">285</p>
               </div>
             </div>
-            <div className="relative mt-4 flex items-center justify-center gap-3 rounded-xl border border-gold/30 bg-gold/5 p-3">
-              <span className="text-gold">
-                <LabDuelMark className="h-5 w-5" />
-              </span>
-              <span className="font-mono text-xs uppercase tracking-widest text-gold">
-                Coin flip → Blue moves first
-              </span>
+            <div className="rounded-[6px] border border-gold/25 bg-gold/[0.05] px-3 py-2 font-mono text-[0.7rem] text-gold/90">
+              &gt; coin flip resolved, BLUE moves first
             </div>
           </div>
-        </div>
+        </Win>
       </section>
 
-      {/* How a round works */}
-      <section className="mt-24">
-        <Eyebrow>How a round works</Eyebrow>
-        <div className="mt-5 grid gap-4 md:grid-cols-4">
-          {[
-            { k: "01", t: "Coin flip", d: "It decides who goes first. The winner moves first and gets a small bonus." },
-            { k: "02", t: "Mission brief", d: "A quick scenario sets the scene, and both sides see what's at stake." },
-            { k: "03", t: "Squads act", d: "Everyone works their own piece at the same time, so nobody just watches." },
-            { k: "04", t: "Debrief", d: "We talk through what each side did and why, then the scores update." },
-          ].map((s) => (
-            <div key={s.k} className="panel p-5">
-              <p className="font-display text-3xl font-black text-gold/80">{s.k}</p>
-              <h3 className="mt-2 font-display text-lg font-bold">{s.t}</h3>
-              <p className="mt-1 text-sm text-paper/65">{s.d}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Round ladder */}
-      <section className="mt-20">
-        <div className="flex items-end justify-between">
-          <div>
-            <Eyebrow>The 9-round ladder</Eyebrow>
-            <h2 className="mt-2 font-display text-3xl font-black">
-              Warmup → pressure → full incident
-            </h2>
-          </div>
-          <Chip className="hidden sm:inline-flex">All 9 rounds live</Chip>
-        </div>
-        <div className="mt-6 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-          {ROUNDS.map((r) => (
-            <div
-              key={r.n}
-              className={`flex items-center gap-3 rounded-xl border p-3.5 ${
-                r.live
-                  ? "border-gold/30 bg-gold/5"
-                  : "border-white/8 bg-ink-800/40 opacity-70"
-              }`}
-            >
-              <span
-                className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg font-display font-black ${
-                  r.live ? "bg-gold text-ink" : "bg-white/5 text-paper/50"
-                }`}
+      {/* round ladder as a console log */}
+      <section className="mt-4">
+        <Win title="// engagement ladder · 9 rounds" right={<span className="font-mono text-[0.66rem] text-paper/35">warmup, pressure, full incident</span>}>
+          <div className="grid gap-x-6 gap-y-0 sm:grid-cols-2 lg:grid-cols-3">
+            {LADDER.map(([n, t]) => (
+              <div
+                key={n}
+                className="flex items-center gap-3 border-b border-white/5 py-2 font-mono text-sm last:border-0"
               >
-                {r.n}
-              </span>
-              <span className="text-sm text-paper/85">{r.t}</span>
-              {r.live ? (
-                <span className="ml-auto font-mono text-[0.6rem] uppercase tracking-widest text-gold">
-                  Live
-                </span>
-              ) : (
-                <span className="ml-auto font-mono text-[0.6rem] uppercase tracking-widest text-paper/30">
-                  Soon
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Three pillars */}
-      <section className="mt-24">
-        <Eyebrow>The platform</Eyebrow>
-        <h2 className="mt-2 font-display text-3xl font-black">Three ways to play</h2>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          {[
-            {
-              t: "LabDuel Live",
-              tag: "Available now",
-              live: true,
-              d: "Host-led red-vs-blue battles for your club or class. Room codes, squads, roles, coin-flip rounds, live scoring.",
-            },
-            {
-              t: "LabDuel Quest",
-              tag: "Coming soon",
-              live: false,
-              d: "A solo, turn-based cyber RPG. Pick a path, enter dungeons, fight incidents, and learn through choices and consequences.",
-            },
-            {
-              t: "LabDuel Studio",
-              tag: "Coming soon",
-              live: false,
-              d: "Tools for instructors to build their own scenarios, quests, role cards, and debriefs without touching code.",
-            },
-          ].map((p) => (
-            <div
-              key={p.t}
-              className={`panel p-5 ${p.live ? "border-gold/30" : "opacity-80"}`}
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-display text-xl font-black">{p.t}</h3>
-                <span
-                  className={`font-mono text-[0.6rem] uppercase tracking-widest ${
-                    p.live ? "text-gold" : "text-paper/40"
-                  }`}
-                >
-                  {p.tag}
-                </span>
+                <span className="text-gold/70">{n}</span>
+                <span className="text-paper/75">{t}</span>
+                <span className="ml-auto text-[0.6rem] uppercase tracking-widest text-mint/70">rdy</span>
               </div>
-              <p className="mt-2 text-sm text-paper/65">{p.d}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </Win>
       </section>
 
-      <footer className="mt-24 flex flex-col items-center gap-2 border-t border-white/8 pt-8 text-center">
-        <Logo size="sm" />
-        <p className="text-sm text-paper/45">
-          A live cyber learning game. Built for clubs and classrooms.
-        </p>
+      {/* platform modules */}
+      <section className="mt-4">
+        <Win title="// platform modules">
+          <div className="space-y-2">
+            {[
+              { k: "live", n: "LabDuel Live", d: "Host-led red-vs-blue classroom battles.", tone: "ok" as const, s: "online" },
+              { k: "quest", n: "LabDuel Quest", d: "Solo turn-based cyber RPG.", tone: "idle" as const, s: "standby" },
+              { k: "studio", n: "LabDuel Studio", d: "Build your own scenarios and quests.", tone: "idle" as const, s: "standby" },
+            ].map((m) => (
+              <div key={m.k} className="flex items-center gap-3 rounded-[6px] border border-white/10 bg-white/[0.015] px-3 py-2.5">
+                <StatusPill tone={m.tone} pulse={m.tone === "ok"}>{m.s}</StatusPill>
+                <div className="min-w-0">
+                  <span className="font-display text-sm font-bold">{m.n}</span>
+                  <span className="ml-2 text-xs text-paper/55">{m.d}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Win>
+      </section>
+
+      <footer className="mt-8 flex items-center justify-between border-t border-white/10 pt-4 font-mono text-[0.66rem] uppercase tracking-[0.18em] text-paper/30">
+        <span>LabDuel</span>
+        <span>for clubs &amp; classrooms</span>
       </footer>
     </main>
   );

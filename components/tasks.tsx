@@ -11,11 +11,11 @@ function ResultBadge({ correct, points }: { correct: boolean; points: number }) 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-display text-xs font-bold uppercase tracking-wide",
-        correct ? "bg-mint/15 text-mint" : "bg-danger/15 text-danger"
+        "inline-flex items-center gap-1.5 rounded-[5px] border px-2.5 py-1 font-mono text-[0.66rem] font-bold uppercase tracking-[0.12em] tabular-nums",
+        correct ? "border-mint/30 bg-mint/10 text-mint" : "border-danger/30 bg-danger/10 text-danger"
       )}
     >
-      {correct ? `Correct +${points}` : "Missed"}
+      {correct ? `pass +${points}` : "miss"}
     </span>
   );
 }
@@ -89,12 +89,12 @@ export function TaskCard({
       <div className={cn("absolute inset-x-0 top-0 h-0.5", c.bg)} />
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="eyebrow">{task.concept}</p>
+          <p className="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-paper/45">// {task.concept}</p>
           <h3 className="mt-1 font-display text-lg font-bold leading-snug">{task.prompt}</h3>
         </div>
         {revealed && <ResultBadge correct={!!item.correct} points={item.points} />}
         {item.submitted && !revealed && (
-          <span className="chip border-gold/40 bg-gold/10 text-gold">Locked in</span>
+          <span className="chip border-gold/40 bg-gold/10 text-gold">submitted</span>
         )}
       </div>
 
@@ -140,7 +140,7 @@ export function TaskCard({
                         disabled={locked || revealed}
                         onClick={() => setPairs((p) => ({ ...p, [l.id]: r.id }))}
                         className={cn(
-                          "rounded-full border px-3 py-1.5 text-xs font-medium transition disabled:opacity-60",
+                          "rounded-[5px] border px-3 py-1.5 text-xs font-medium transition disabled:opacity-60",
                           active
                             ? cn("border-transparent text-ink", c.bg)
                             : "border-white/15 bg-white/5 text-paper/75 hover:bg-white/10"
@@ -160,7 +160,7 @@ export function TaskCard({
           <div>
             {task.reference && (
               <div className="mb-2">
-                <p className="eyebrow mb-1">Type this exactly</p>
+                <p className="eyebrow mb-1">// type this exactly</p>
                 <p className="select-all rounded-lg border border-gold/30 bg-gold/5 px-4 py-3 font-mono text-sm text-gold">
                   {task.reference}
                 </p>
@@ -192,11 +192,11 @@ export function TaskCard({
             c.bg
           )}
         >
-          {busy ? "Sending…" : item.submitted ? "Update answer" : "Lock in answer"}
+          {busy ? "Sending…" : item.submitted ? "Update answer" : "Submit answer"}
         </button>
       )}
       {locked && !revealed && (
-        <p className="mt-4 text-center text-sm text-paper/50">Round locked, awaiting results…</p>
+        <p className="mt-4 text-center font-mono text-xs text-paper/50">// locked · awaiting scoring</p>
       )}
     </div>
   );
@@ -223,7 +223,7 @@ function OptionList({
             disabled={disabled}
             onClick={() => onSelect(o.id)}
             className={cn(
-              "flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition disabled:opacity-70",
+              "flex w-full items-center gap-3 rounded-[6px] border px-4 py-3 text-left text-sm transition disabled:opacity-70",
               active
                 ? "border-gold/60 bg-gold/10 text-paper"
                 : "border-white/12 bg-ink-700/50 text-paper/80 hover:border-white/25 hover:bg-ink-700"
@@ -231,11 +231,11 @@ function OptionList({
           >
             <span
               className={cn(
-                "grid h-5 w-5 shrink-0 place-items-center rounded-full border text-[0.6rem]",
-                active ? "border-gold bg-gold text-ink" : "border-white/25"
+                "grid h-4 w-4 shrink-0 place-items-center rounded-[3px] border",
+                active ? "border-gold bg-gold" : "border-white/25"
               )}
             >
-              {active ? "✓" : ""}
+              {active && <span className="h-1.5 w-1.5 rounded-[1px] bg-ink" />}
             </span>
             <span>{o.label}</span>
           </button>

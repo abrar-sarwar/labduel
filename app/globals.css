@@ -4,6 +4,8 @@
 
 :root {
   color-scheme: dark;
+  --radius: 10px;
+  --hair: rgba(255, 255, 255, 0.08);
 }
 
 @layer base {
@@ -12,56 +14,91 @@
   }
   body {
     @apply bg-ink text-paper font-sans antialiased;
+    /* faint console grid, not glowy marketing blobs */
+    background-color: #0a0c12;
     background-image:
-      radial-gradient(circle at 12% -10%, rgba(61, 139, 255, 0.16), transparent 42%),
-      radial-gradient(circle at 88% 0%, rgba(255, 77, 94, 0.16), transparent 42%),
-      radial-gradient(circle at 50% 120%, rgba(246, 183, 60, 0.08), transparent 50%);
+      linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+    background-size: 32px 32px;
     background-attachment: fixed;
   }
 
-  /* Tactical grid + grain atmosphere */
-  body::before {
+  /* hairline scanlines for a screen feel (very subtle) */
+  body::after {
     content: "";
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-    background-size: 44px 44px;
-    mask-image: radial-gradient(circle at 50% 30%, black, transparent 85%);
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.018) 0px,
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity: 0.6;
   }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display), system-ui, sans-serif;
-    letter-spacing: -0.02em;
-    font-stretch: 125%;
+    letter-spacing: -0.01em;
   }
 
   ::selection {
-    background: rgba(246, 183, 60, 0.35);
+    background: rgba(246, 183, 60, 0.3);
+  }
+
+  /* tabular numerics everywhere by default for that instrument feel */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }
 
 @layer components {
-  /* The "ops board" panel — light surface on the dark tactical base */
+  /* A console "screen" panel: squared, hairline border, faint inner top light. */
   .panel {
-    @apply rounded-xl2 border border-white/10 bg-ink-800/80 backdrop-blur-sm;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
-      0 20px 60px -30px rgba(0, 0, 0, 0.85);
+    @apply rounded-[var(--radius)] border border-white/10;
+    background: linear-gradient(180deg, rgba(22, 26, 38, 0.9), rgba(14, 17, 26, 0.92));
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 18px 50px -34px rgba(0, 0, 0, 0.9);
   }
   .panel-paper {
-    @apply rounded-xl2 bg-paper text-ink;
-    box-shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.7);
+    @apply rounded-[var(--radius)] bg-paper text-ink;
   }
 
-  /* Wide tactical eyebrow label */
+  /* A titled window: use <div class="win"> with a <div class="win-bar"> header. */
+  .win {
+    @apply relative overflow-hidden rounded-[var(--radius)] border border-white/10;
+    background: linear-gradient(180deg, rgba(22, 26, 38, 0.92), rgba(13, 16, 24, 0.94));
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 18px 50px -34px rgba(0, 0, 0, 0.9);
+  }
+  .win-bar {
+    @apply flex items-center justify-between gap-3 border-b border-white/10 px-3 py-2;
+    background: rgba(255, 255, 255, 0.025);
+  }
+  .win-title {
+    @apply font-mono text-[0.66rem] uppercase tracking-[0.22em] text-paper/55;
+  }
+
+  /* monospace label/eyebrow */
   .eyebrow {
-    @apply font-mono text-[0.68rem] uppercase tracking-[0.34em] text-paper/55;
+    @apply font-mono text-[0.66rem] uppercase tracking-[0.24em] text-paper/45;
   }
 
-  /* Diagonal strike accent (the "duel" strike) */
+  /* key/value readout row, like a status line */
+  .readout {
+    @apply flex items-baseline justify-between gap-3 font-mono text-xs;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-[5px] border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[0.66rem] uppercase tracking-[0.15em];
+  }
+
+  /* a live status dot */
+  .dot {
+    @apply inline-block h-1.5 w-1.5 rounded-full;
+  }
+
   .strike {
     position: relative;
     overflow: hidden;
@@ -73,32 +110,17 @@
     left: 0;
     height: 100%;
     width: 40%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.18),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
     transform: translateX(-120%) skewX(-18deg);
   }
   .strike:hover::after {
     animation: slash 0.7s ease-in both;
-  }
-
-  .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[0.7rem] uppercase tracking-widest;
   }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
-  }
-  .bg-grid-fade {
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-    background-size: 28px 28px;
   }
   .perspective {
     perspective: 900px;

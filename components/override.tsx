@@ -68,8 +68,8 @@ function PlayerEditor({
       <div className="flex items-center justify-between">
         <span className="font-display text-sm font-bold">{player.name}</span>
         {onCancel && (
-          <button onClick={onCancel} className="text-xs text-paper/40 hover:text-paper">
-            ✕
+          <button onClick={onCancel} aria-label="Cancel" className="font-mono text-xs text-paper/40 hover:text-paper">
+            [x]
           </button>
         )}
       </div>
@@ -172,7 +172,7 @@ function ActiveRow({
     );
   }
   return (
-    <div className="flex items-center justify-between gap-2 rounded-lg border border-white/8 bg-ink-700/30 px-3 py-2">
+    <div className="flex items-center justify-between gap-2 rounded-lg border border-white/10 bg-ink-700/30 px-3 py-2">
       <div className="min-w-0">
         <span className="font-display text-sm font-bold">{player.name}</span>
         <span className="ml-2 text-xs text-paper/50">
@@ -208,14 +208,14 @@ export function OverrideConsole({
   return (
     <div className={cn("panel p-5", waiting.length > 0 && "border-warn/40")}>
       <button onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between">
-        <span className="eyebrow">Roster &amp; overrides</span>
-        <span className="flex items-center gap-2 text-xs text-paper/50">
+        <span className="eyebrow">// roster &amp; overrides</span>
+        <span className="flex items-center gap-2 font-mono text-xs text-paper/50">
           {waiting.length > 0 && (
-            <span className="rounded-full bg-warn/20 px-2 py-0.5 font-mono uppercase tracking-widest text-warn">
+            <span className="rounded-[4px] bg-warn/20 px-2 py-0.5 uppercase tracking-[0.12em] text-warn">
               {waiting.length} to place
             </span>
           )}
-          <span>{open ? "Hide ▲" : "Manage ▼"}</span>
+          <span>[{open ? "hide" : "manage"}]</span>
         </span>
       </button>
 

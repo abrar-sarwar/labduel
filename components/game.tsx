@@ -58,7 +58,7 @@ export function TeamTag({ team, className }: { team: Team; className?: string })
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-display text-xs font-bold uppercase tracking-wider",
+        "inline-flex items-center gap-1.5 rounded-[5px] border px-2 py-0.5 font-mono text-[0.62rem] font-bold uppercase tracking-[0.18em]",
         c.border,
         c.soft,
         c.text,
@@ -87,7 +87,7 @@ export function PhasePill({ phase }: { phase: Phase }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[0.7rem] uppercase tracking-[0.25em]",
+        "inline-flex items-center gap-2 rounded-[6px] border px-3 py-1 font-mono text-[0.7rem] uppercase tracking-[0.25em]",
         live ? "border-mint/40 bg-mint/10 text-mint" : "border-white/12 bg-white/5 text-paper/70"
       )}
     >
@@ -104,7 +104,7 @@ export function ConnIndicator({ status }: { status: ConnStatus }) {
     reconnecting: { c: "text-warn border-warn/30", dot: "bg-warn animate-pulse", t: "Reconnecting" },
   }[status];
   return (
-    <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[0.65rem] uppercase tracking-widest", map.c)}>
+    <span className={cn("inline-flex items-center gap-1.5 rounded-[6px] border px-2.5 py-1 font-mono text-[0.65rem] uppercase tracking-widest", map.c)}>
       <span className={cn("h-1.5 w-1.5 rounded-full", map.dot)} />
       {map.t}
     </span>
@@ -153,7 +153,7 @@ export function ScoreBar({ red, blue }: { red: number; blue: number }) {
     <div>
       <div className="mb-1.5 flex items-end justify-between font-display">
         <span className="text-red-team text-2xl font-black tabular-nums">{red}</span>
-        <span className="eyebrow">Score</span>
+        <span className="eyebrow">// score</span>
         <span className="text-blue-team text-2xl font-black tabular-nums">{blue}</span>
       </div>
       <div className="flex h-3 w-full overflow-hidden rounded-full bg-ink-600">
@@ -201,11 +201,11 @@ export function CoinFlip({
         </div>
       </div>
       <div>
-        <p className="eyebrow">Initiative</p>
+        <p className="eyebrow">// initiative · coin flip</p>
         <p className={cn("font-display text-2xl font-black uppercase", c.text)}>
           {teamLabel(initiative)} moves first
         </p>
-        <p className="mt-1 text-sm text-paper/60">
+        <p className="mt-1 font-mono text-xs text-paper/60">
           +{Math.round((bonus - 1) * 100)}% initiative bonus this round
         </p>
       </div>
@@ -229,7 +229,7 @@ export function RoleCard({
           <RoleGlyph glyph={role.glyph} className={cn("h-7 w-7", c.text)} />
         </span>
         <div>
-          <p className="eyebrow">{teamLabel(team)} · Role</p>
+          <p className="eyebrow">// {teamLabel(team)} · role</p>
           <h3 className="font-display text-2xl font-black">{role.name}</h3>
           <p className="mt-1 text-sm text-paper/70">{role.blurb}</p>
         </div>
