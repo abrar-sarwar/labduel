@@ -81,7 +81,7 @@ class GameRegistry {
   }
 }
 
-const globalForRegistry = globalThis as unknown as { __labduelRegistry?: GameRegistry };
+const globalForRegistry = globalThis as unknown as { __parelyitRegistry?: GameRegistry };
 
 export const registry: GameRegistry =
-  globalForRegistry.__labduelRegistry ?? (globalForRegistry.__labduelRegistry = new GameRegistry());
+  globalForRegistry.__parelyitRegistry ?? (globalForRegistry.__parelyitRegistry = new GameRegistry());

@@ -8,10 +8,10 @@ import { registry } from "./registry";
 const MAX_AGE = 60 * 60 * 8; // 8 hours
 
 function hostCookie(code: string): string {
-  return `labduel_host_${code.toUpperCase()}`;
+  return `parelyit_host_${code.toUpperCase()}`;
 }
 function playerCookie(code: string): string {
-  return `labduel_player_${code.toUpperCase()}`;
+  return `parelyit_player_${code.toUpperCase()}`;
 }
 
 export type Actor =

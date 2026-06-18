@@ -30,7 +30,7 @@ const config: Config = {
           ice: "#56d6ff",
           deep: "#1f4fb5",
         },
-        // LabDuel brand spark + functional accents
+        // Parely-It brand spark + functional accents
         gold: "#f6b73c",
         spark: "#ffd166",
         mint: "#3ddc97",

@@ -19,7 +19,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LabDuel, live red vs blue cyber battle",
+  title: "Parely-It, live red vs blue cyber battle",
   description:
     "A cybersecurity learning platform. Live red vs blue cyber battles for clubs and classrooms. Red strikes, Blue defends, every round.",
 };

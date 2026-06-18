@@ -115,9 +115,9 @@ export default function Landing() {
         <Win title="// platform modules">
           <div className="space-y-2">
             {[
-              { k: "live", n: "LabDuel Live", d: "Host-led red-vs-blue classroom battles.", tone: "ok" as const, s: "online" },
-              { k: "quest", n: "LabDuel Quest", d: "Solo turn-based cyber RPG.", tone: "idle" as const, s: "standby" },
-              { k: "studio", n: "LabDuel Studio", d: "Build your own scenarios and quests.", tone: "idle" as const, s: "standby" },
+              { k: "live", n: "Parely-It Live", d: "Host-led red-vs-blue classroom battles.", tone: "ok" as const, s: "online" },
+              { k: "quest", n: "Parely-It Quest", d: "Solo turn-based cyber RPG.", tone: "idle" as const, s: "standby" },
+              { k: "studio", n: "Parely-It Studio", d: "Build your own scenarios and quests.", tone: "idle" as const, s: "standby" },
             ].map((m) => (
               <div key={m.k} className="flex items-center gap-3 rounded-[6px] border border-white/10 bg-white/[0.015] px-3 py-2.5">
                 <StatusPill tone={m.tone} pulse={m.tone === "ok"}>{m.s}</StatusPill>
@@ -132,7 +132,7 @@ export default function Landing() {
       </section>
 
       <footer className="mt-8 flex items-center justify-between border-t border-white/10 pt-4 font-mono text-[0.66rem] uppercase tracking-[0.18em] text-paper/30">
-        <span>LabDuel</span>
+        <span>Parely-It</span>
         <span>for clubs &amp; classrooms</span>
       </footer>
     </main>

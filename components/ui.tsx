@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
-import { LabDuelMark } from "./icons";
+import { ParelyItMark } from "./icons";
 
 // ---------------- Logo ----------------
 
@@ -16,10 +16,10 @@ export function Logo({
   return (
     <Link href="/" className={cn("inline-flex items-center gap-2 group", className)}>
       <span className={cn("text-gold transition-transform group-hover:rotate-[8deg]", mark)}>
-        <LabDuelMark className={mark} />
+        <ParelyItMark className={mark} />
       </span>
       <span className={cn("font-display font-black tracking-tight", text)}>
-        LABDUEL
+        PARELY-IT
       </span>
     </Link>
   );

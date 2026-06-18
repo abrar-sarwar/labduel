@@ -2,8 +2,8 @@ import { cn } from "@/lib/cn";
 
 type IconProps = { className?: string };
 
-// LabDuel mark: two crossed blades forming a duel / deflection.
-export function LabDuelMark({ className }: IconProps) {
+// Parely-It mark: two crossed blades forming a duel / deflection.
+export function ParelyItMark({ className }: IconProps) {
   return (
     <svg viewBox="0 0 32 32" className={className} fill="none" aria-hidden>
       <path d="M5 27L21 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />

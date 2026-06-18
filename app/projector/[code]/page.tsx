@@ -14,7 +14,7 @@ import {
 } from "@/components/panels";
 import { Win } from "@/components/console";
 import { SiegeBoard } from "@/components/siege";
-import { LabDuelMark } from "@/components/icons";
+import { ParelyItMark } from "@/components/icons";
 
 export default function ProjectorPage() {
   const { code } = useParams<{ code: string }>();
@@ -49,7 +49,7 @@ export default function ProjectorPage() {
               {code}
             </p>
             <div className="flex items-center gap-3 font-mono text-2xl tabular-nums text-paper/70">
-              <LabDuelMark className="h-8 w-8 text-gold" />
+              <ParelyItMark className="h-8 w-8 text-gold" />
               <span>{pub.playerCount} connected</span>
             </div>
             <div className="mt-8 flex max-w-4xl flex-wrap justify-center gap-2">

@@ -69,7 +69,7 @@ check("host starts game", start.status === 200 && start.json.phase === "roleReve
 // 5. Public state never leaks tokens/answers
 const pub1 = await req(stranger, "GET", `/api/games/${code}/state`);
 const pubStr = JSON.stringify(pub1.json);
-check("public state has no tokens", !/"token"/.test(pubStr) && !pubStr.includes(host.get("labduel_host_" + code)));
+check("public state has no tokens", !/"token"/.test(pubStr) && !pubStr.includes(host.get("parelyit_host_" + code)));
 check("public state has no answerId/answer", !/"answerId"/.test(pubStr) && !/"answer":/.test(pubStr));
 check("players are assigned to teams", pub1.json.players.every((p) => p.team));
 

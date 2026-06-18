@@ -1,7 +1,7 @@
-# LabDuel
+# Parely-It
 
 A cybersecurity learning platform built around interactive cyber battles. The
-first mode, **LabDuel Live**, is a host-led red-vs-blue classroom game: "Kahoot
+first mode, **Parely-It Live**, is a host-led red-vs-blue classroom game: "Kahoot
 meets a tabletop incident response," with Clash-Royale-style competitive energy.
 Red strikes, Blue defends, every round.
 
@@ -12,7 +12,7 @@ budget, and watch a company's breach meter climb or hold.
 
 ## What's in here
 
-LabDuel Live is feature-complete for a real club session:
+Parely-It Live is feature-complete for a real club session:
 
 - **Live rooms** with short codes, a lobby, late-joiners, and reconnect-on-refresh.
 - **Teams, squads, and roles** with three assignment modes each (auto / players
@@ -36,7 +36,7 @@ LabDuel Live is feature-complete for a real club session:
 - Eight views: landing, create, join, lobby, host dashboard, player, projector,
   results, in a security-operations-console style.
 
-The future pillars, **LabDuel Quest** (solo turn-based RPG) and **LabDuel Studio**
+The future pillars, **Parely-It Quest** (solo turn-based RPG) and **Parely-It Studio**
 (content authoring), are designed-for but not built. See
 [`docs/superpowers/specs`](docs/superpowers/specs) for the full design.
 
@@ -62,8 +62,8 @@ hidden-role data never reach clients that shouldn't see them.
 ## Setup
 
 ```bash
-git clone https://github.com/abrar-sarwar/labduel.git
-cd labduel
+git clone https://github.com/abrar-sarwar/parely-it.git
+cd parely-it
 npm install
 npm run dev
 ```

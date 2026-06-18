@@ -1,22 +1,22 @@
-# LabDuel, Slice 1 Design ("Playable Skeleton")
+# Parely-It, Slice 1 Design ("Playable Skeleton")
 
 **Date:** 2026-06-17
 **Status:** Approved, building.
 
 ## Product context
 
-LabDuel is a cybersecurity learning platform built around interactive cyber
+Parely-It is a cybersecurity learning platform built around interactive cyber
 battles. The first mode is a live, classroom-friendly, red-vs-blue game: "Kahoot
 meets tabletop cyber incident response," with competitive, Clash-Royale-style
 energy. Red strikes, Blue defends; every round is action and reaction. First
 audience: a cybersecurity club running it live with 50+ students.
 
-The platform has three pillars: **LabDuel Live** (host-led classroom mode, the
-MVP), **LabDuel Quest** (solo turn-based cyber RPG, later), and **LabDuel Studio**
+The platform has three pillars: **Parely-It Live** (host-led classroom mode, the
+MVP), **Parely-It Quest** (solo turn-based cyber RPG, later), and **Parely-It Studio**
 (creator/instructor tools for authoring scenarios, quests, and packs, later). Only
-LabDuel Live is in scope for Slice 1; the architecture, naming, and structured,
+Parely-It Live is in scope for Slice 1; the architecture, naming, and structured,
 versionable content model leave room for Quest and Studio without rework. The full
-master prompt (`labduel-master-prompt.md`) is the long-term north star.
+master prompt (`parely-it-master-prompt.md`) is the long-term north star.
 
 ## Slice 1 goal
 
@@ -204,7 +204,7 @@ Host picks how teams and roles are handed out (create screen).
 ## Explicitly OUT of Slice 1 (designed-for, not built)
 
 Role-rotation toggle · manual score adjustment · characters/art ·
-Supabase adapter wiring · LabDuel Quest · LabDuel Studio · platform/accounts layer.
+Supabase adapter wiring · Parely-It Quest · Parely-It Studio · platform/accounts layer.
 
 ## Visual identity
 
