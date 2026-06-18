@@ -15,11 +15,16 @@ import { validateAnswer, scoreSubmission } from "./scoring";
 import { assignTeamsAndSquads, placeWaitingPlayers } from "./assign";
 import { rolesForTeam } from "../shared/roles";
 import { getUpgrade } from "../content/upgrades";
+import { LANE_IDS } from "../content/lanes";
 
 const SHOP_BASE_INCOME = 300;
 const SHOP_WINNER_BONUS = 150;
 const DAMAGE_ON_RED_WIN = 15;
 const RECOVERY_ON_BLUE_WIN = 8;
+// Siege board resolution
+const SIEGE_BREACH_DAMAGE = 18;
+const SIEGE_RECOVERY = 10;
+const SIEGE_POINTS = 60;
 
 export class GameError extends Error {
   constructor(public code: string, message: string) {
@@ -165,6 +170,88 @@ export function checkmateState(state: GameState): CheckmateState {
   return { enabled, progress, threshold, unlocked: enabled && progress >= threshold };
 }
 
+// ---------------- Siege board ----------------
+
+function patchSiege(
+  state: GameState,
+  patch: Partial<GameState["rounds"][number]["siege"]>,
+  now: number
+): GameState {
+  const round = state.rounds[state.roundIndex];
+  if (!round) throw new GameError("no_round", "No round in progress");
+  const rounds = state.rounds.slice();
+  rounds[state.roundIndex] = { ...round, siege: { ...round.siege, ...patch } };
+  return withMeta({ ...state, rounds }, now);
+}
+
+/** Red's leader commits one attack lane during the briefing. */
+export function commitAttack(
+  state: GameState,
+  playerId: string,
+  laneId: string,
+  now: number
+): GameState {
+  if (state.phase !== "roundBriefing")
+    throw new GameError("bad_phase", "You can only commit during the briefing");
+  if (state.leaders.red !== playerId)
+    throw new GameError("not_leader", "Only the Red leader sets the attack");
+  if (!LANE_IDS.includes(laneId as never))
+    throw new GameError("bad_lane", "Unknown lane");
+  if (state.rounds[state.roundIndex]?.siege.revealed)
+    throw new GameError("locked", "The siege is already resolved");
+  return patchSiege(state, { attackLane: laneId }, now);
+}
+
+/** Blue's leader commits the defended lanes during the briefing. */
+export function commitDefense(
+  state: GameState,
+  playerId: string,
+  laneIds: string[],
+  now: number
+): GameState {
+  if (state.phase !== "roundBriefing")
+    throw new GameError("bad_phase", "You can only commit during the briefing");
+  if (state.leaders.blue !== playerId)
+    throw new GameError("not_leader", "Only the Blue leader sets the defenses");
+  const unique = Array.from(new Set(laneIds));
+  if (unique.some((l) => !LANE_IDS.includes(l as never)))
+    throw new GameError("bad_lane", "Unknown lane");
+  if (unique.length > state.blueDefenseSlots)
+    throw new GameError("too_many", `You can defend at most ${state.blueDefenseSlots} lanes`);
+  if (state.rounds[state.roundIndex]?.siege.revealed)
+    throw new GameError("locked", "The siege is already resolved");
+  return patchSiege(state, { defendedLanes: unique }, now);
+}
+
+/** Resolve the siege at round start: breach (Red) or parry (Blue), apply effects. */
+export function resolveSiege(state: GameState, rng: Rng): GameState {
+  const round = state.rounds[state.roundIndex];
+  if (!round || round.siege.revealed) return state;
+
+  // If Red never committed, the attack lands on a random lane.
+  const attackLane =
+    round.siege.attackLane ?? LANE_IDS[Math.floor(rng() * LANE_IDS.length)];
+  const parried = round.siege.defendedLanes.includes(attackLane);
+  const outcome: "breach" | "parry" = parried ? "parry" : "breach";
+
+  let companyDamage = state.companyDamage;
+  const scores = { ...state.scores };
+  if (outcome === "breach") {
+    companyDamage = Math.min(100, companyDamage + SIEGE_BREACH_DAMAGE + state.redBreachBonus);
+    scores.red += SIEGE_POINTS;
+  } else {
+    companyDamage = Math.max(0, companyDamage - SIEGE_RECOVERY);
+    scores.blue += SIEGE_POINTS;
+  }
+
+  const rounds = state.rounds.slice();
+  rounds[state.roundIndex] = {
+    ...round,
+    siege: { ...round.siege, attackLane, revealed: true, outcome },
+  };
+  return { ...state, rounds, scores, companyDamage };
+}
+
 /** Toggle Insider Threat, host only, lobby only. */
 export function setInsiderThreat(
   state: GameState,
@@ -223,6 +310,7 @@ function beginRound(state: GameState, index: number, now: number, rng: Rng): Gam
     scored: false,
     roundScore: { red: 0, blue: 0 },
     insiderSabotaged: false,
+    siege: { attackLane: null, defendedLanes: [], revealed: false, outcome: null },
   };
   const rounds = state.rounds.slice();
   rounds[index] = round;
@@ -362,6 +450,8 @@ export function buyUpgrade(
   let premium = te.premium;
   let nextRoundBonusPct = te.nextRoundBonusPct;
   let companyDamage = state.companyDamage;
+  let blueDefenseSlots = state.blueDefenseSlots;
+  let redBreachBonus = state.redBreachBonus;
 
   switch (up.effect.kind) {
     case "scoreNextRound":
@@ -377,13 +467,19 @@ export function buyUpgrade(
       money += up.effect.money;
       premium += up.effect.premium;
       break;
+    case "defenseSlot":
+      blueDefenseSlots += 1;
+      break;
+    case "breachBonus":
+      redBreachBonus += up.effect.amount;
+      break;
   }
 
   const economy = {
     ...state.economy,
     [team]: { money, premium, nextRoundBonusPct, upgrades: [...te.upgrades, up.id] },
   };
-  let next: GameState = { ...state, economy, companyDamage };
+  let next: GameState = { ...state, economy, companyDamage, blueDefenseSlots, redBreachBonus };
   next = audit(next, "host", "buy", { team, upgrade: up.id, cost: up.cost });
   return withMeta(next, now);
 }
@@ -407,11 +503,13 @@ export function advance(
       break;
 
     case "roundBriefing": {
-      const round = state.rounds[state.roundIndex];
-      const deadline = now + state.settings.roundSeconds * 1000;
-      const rounds = state.rounds.slice();
-      rounds[state.roundIndex] = { ...round, startedAt: now, deadline };
-      next = { ...state, rounds, phase: "active", phaseDeadline: deadline };
+      // Resolve the siege board (reveal) as the round goes live.
+      const resolved = resolveSiege(state, rng);
+      const round = resolved.rounds[resolved.roundIndex];
+      const deadline = now + resolved.settings.roundSeconds * 1000;
+      const rounds = resolved.rounds.slice();
+      rounds[resolved.roundIndex] = { ...round, startedAt: now, deadline };
+      next = { ...resolved, rounds, phase: "active", phaseDeadline: deadline };
       break;
     }
 

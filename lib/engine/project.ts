@@ -12,6 +12,7 @@ import type {
   PlayerTaskView,
   InsiderView,
   HostModeration,
+  PlayerSiege,
   Phase,
 } from "../shared/types";
 import type { ScenarioPack } from "../shared/content-types";
@@ -29,6 +30,8 @@ const SHOW_ROUND: Phase[] = ["roundBriefing", "active", "submissionLock"];
 const SHOW_TASKS: Phase[] = ["active", "submissionLock", "debrief"];
 // Phases where the insider may have a live objective panel.
 const INSIDER_ACTIVE: Phase[] = ["roundBriefing", "active", "submissionLock", "debrief"];
+// Phases where the siege board is shown.
+const SIEGE_PHASES: Phase[] = ["roundBriefing", "active", "submissionLock", "debrief"];
 
 function squadScores(state: GameState): Map<string, number> {
   const totals = new Map<string, number>();
@@ -88,6 +91,21 @@ export function toPublicState(state: GameState, pack: ScenarioPack): PublicState
 
   const final = state.phase === "finalResults" ? computeFinal(state, pack) : null;
 
+  // Siege board, public. Pre-reveal exposes only commit PROGRESS, never lanes.
+  let siege: PublicState["siege"] = null;
+  if (runtime && SIEGE_PHASES.includes(state.phase)) {
+    const s = runtime.siege;
+    siege = {
+      revealed: s.revealed,
+      defenseSlots: state.blueDefenseSlots,
+      redCommitted: s.attackLane !== null,
+      blueDefendedCount: s.defendedLanes.length,
+      attackLane: s.revealed ? s.attackLane : null,
+      defendedLanes: s.revealed ? s.defendedLanes : [],
+      outcome: s.revealed ? s.outcome : null,
+    };
+  }
+
   return {
     code: state.code,
     phase: state.phase,
@@ -115,6 +133,7 @@ export function toPublicState(state: GameState, pack: ScenarioPack): PublicState
     round,
     debrief,
     final,
+    siege,
     phaseDeadline: state.phaseDeadline,
     playerCount: state.players.length,
     connectedCount: state.players.filter((p) => p.connected).length,
@@ -234,6 +253,25 @@ export function toPlayerView(
     };
   }
 
+  // Siege, team-only. Your own commit is visible to your team before reveal;
+  // the opponent's stays hidden until the round goes live.
+  let siege: PlayerSiege | null = null;
+  if (runtime && player.team && SIEGE_PHASES.includes(state.phase)) {
+    const s = runtime.siege;
+    const team = player.team;
+    siege = {
+      team,
+      isLeader: state.leaders[team] === player.id,
+      defenseSlots: state.blueDefenseSlots,
+      myAttack: team === "red" ? s.attackLane : null,
+      myDefense: team === "blue" ? s.defendedLanes : [],
+      revealed: s.revealed,
+      outcome: s.revealed ? s.outcome : null,
+      attackLane: s.revealed ? s.attackLane : null,
+      defendedLanes: s.revealed ? s.defendedLanes : [],
+    };
+  }
+
   return {
     you: {
       id: player.id,
@@ -253,6 +291,7 @@ export function toPlayerView(
     squad,
     debrief,
     insider,
+    siege,
   };
 }
 

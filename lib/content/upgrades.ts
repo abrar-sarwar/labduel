@@ -7,7 +7,9 @@ export type UpgradeEffect =
   | { kind: "scoreNextRound"; pct: number }
   | { kind: "reduceDamage"; amount: number }
   | { kind: "addDamage"; amount: number }
-  | { kind: "insurance"; money: number; premium: number };
+  | { kind: "insurance"; money: number; premium: number }
+  | { kind: "defenseSlot" } // Blue: +1 defended lane on the siege board
+  | { kind: "breachBonus"; amount: number }; // Red: breaches deal extra company damage
 
 export interface Upgrade {
   id: string;
@@ -67,6 +69,15 @@ export const BLUE_UPGRADES: Upgrade[] = [
     effect: { kind: "reduceDamage", amount: 25 },
   },
   {
+    id: "watchtower",
+    team: "blue",
+    name: "Watchtower",
+    cost: 220,
+    blurb: "Defend +1 lane on the siege board.",
+    concept: "More coverage across your attack surface.",
+    effect: { kind: "defenseSlot" },
+  },
+  {
     id: "insurance",
     team: "blue",
     name: "Cyber Insurance",
@@ -113,6 +124,15 @@ export const RED_UPGRADES: Upgrade[] = [
     blurb: "+6% to your squad's points next round.",
     concept: "Urgency and authority push people to skip checks.",
     effect: { kind: "scoreNextRound", pct: 0.06 },
+  },
+  {
+    id: "siegeengine",
+    team: "red",
+    name: "Siege Engine",
+    cost: 220,
+    blurb: "Breaches on the siege board deal +15 extra company damage.",
+    concept: "Turning a foothold into real impact.",
+    effect: { kind: "breachBonus", amount: 15 },
   },
   {
     id: "breach",

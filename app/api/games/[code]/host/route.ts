@@ -1,5 +1,13 @@
 import { hostActionSchema } from "@/lib/shared/schemas";
-import { startGame, advance, forceLock, setInsiderThreat, botsAutoSubmit, botsAutoVote } from "@/lib/engine";
+import {
+  startGame,
+  advance,
+  forceLock,
+  setInsiderThreat,
+  botsAutoSubmit,
+  botsAutoVote,
+  botsAutoSiege,
+} from "@/lib/engine";
 import { registry } from "@/lib/server/registry";
 import { isHost } from "@/lib/server/auth";
 import { secureRng } from "@/lib/server/rng";
@@ -43,6 +51,8 @@ export async function POST(
         registry.mutate(code, (state, pack) => botsAutoSubmit(state, pack, Date.now(), secureRng));
       } else if (next.phase === "shop") {
         registry.mutate(code, (state) => botsAutoVote(state, Date.now(), secureRng));
+      } else if (next.phase === "roundBriefing") {
+        registry.mutate(code, (state) => botsAutoSiege(state, secureRng));
       }
     }
     return ok({ phase: next.phase });

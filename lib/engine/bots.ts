@@ -7,6 +7,7 @@ import type { ScenarioPack } from "../shared/content-types";
 import type { Rng } from "./rng";
 import { applySubmission, tasksForPlayer, roundContentFor } from "./round";
 import { upgradesForTeam } from "../content/upgrades";
+import { LANE_IDS } from "../content/lanes";
 
 const BOT_NAMES = [
   "Ada", "Linus", "Grace", "Turing", "Hopper", "Nova", "Echo", "Pixel",
@@ -41,6 +42,34 @@ export function addBots(state: GameState, count: number, now: number): GameState
     rev: state.rev + 1,
     updatedAt: now,
   };
+}
+
+/** If a team's leader is a bot, commit a siege move for them during the briefing. */
+export function botsAutoSiege(state: GameState, rng: Rng): GameState {
+  if (state.phase !== "roundBriefing") return state;
+  const round = state.rounds[state.roundIndex];
+  if (!round || round.siege.revealed) return state;
+
+  const isBot = (id: string | null) =>
+    !!id && (state.players.find((p) => p.id === id)?.isBot ?? false);
+  const pick = () => LANE_IDS[Math.floor(rng() * LANE_IDS.length)];
+
+  let attackLane = round.siege.attackLane;
+  let defendedLanes = round.siege.defendedLanes;
+
+  if (attackLane === null && isBot(state.leaders.red)) attackLane = pick();
+  if (defendedLanes.length === 0 && isBot(state.leaders.blue)) {
+    const set = new Set<string>();
+    let guard = 0;
+    while (set.size < state.blueDefenseSlots && guard++ < 20) set.add(pick());
+    defendedLanes = [...set];
+  }
+  if (attackLane === round.siege.attackLane && defendedLanes === round.siege.defendedLanes) {
+    return state; // nothing to do (human leaders)
+  }
+  const rounds = state.rounds.slice();
+  rounds[state.roundIndex] = { ...round, siege: { ...round.siege, attackLane, defendedLanes } };
+  return { ...state, rounds, rev: state.rev + 1 };
 }
 
 function wrongOptionId(options: { id: string }[], answerId: string): string {

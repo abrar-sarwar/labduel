@@ -13,6 +13,7 @@ import {
   CompanyDamageMeter,
 } from "@/components/panels";
 import { Win } from "@/components/console";
+import { SiegeBoard } from "@/components/siege";
 import { LabDuelMark } from "@/components/icons";
 
 export default function ProjectorPage() {
@@ -82,6 +83,11 @@ export default function ProjectorPage() {
                 <MissionBrief round={pub.round} />
               </div>
             )}
+
+            {pub.siege &&
+              (pub.phase === "roundBriefing" || pub.phase === "active" || pub.phase === "submissionLock") && (
+                <SiegeBoard pub={pub.siege} mine={null} code={code} onChange={() => {}} />
+              )}
 
             {(pub.phase === "active" || pub.phase === "submissionLock") && pub.round && (
               <div className="grid items-center gap-6 md:grid-cols-[1fr_1.2fr]">

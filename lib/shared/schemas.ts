@@ -25,6 +25,12 @@ export const createGameSchema = z.object({
   insiderThreat: z.boolean().optional(),
 });
 
+// Siege board commits (leaders, during briefing).
+export const siegeActionSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("attack"), laneId: z.string().min(1) }),
+  z.object({ kind: z.literal("defense"), laneIds: z.array(z.string().min(1)).max(5) }),
+]);
+
 // Lobby / role-reveal actions.
 export const lobbyActionSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("pickTeam"), team: z.enum(["red", "blue"]) }),

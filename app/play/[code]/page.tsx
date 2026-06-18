@@ -24,6 +24,7 @@ import {
 } from "@/components/panels";
 import { Button } from "@/components/ui";
 import { Win, StatusPill } from "@/components/console";
+import { SiegeBoard } from "@/components/siege";
 
 export default function PlayPage() {
   const { code } = useParams<{ code: string }>();
@@ -215,6 +216,9 @@ export default function PlayPage() {
                 bonus={pub.round.bonus}
               />
             </Win>
+            {pub.siege && (
+              <SiegeBoard pub={pub.siege} mine={view?.siege ?? null} code={code} onChange={refetch} />
+            )}
             <Win title={`// round ${pub.round.number} brief`}>
               <p className="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-gold/80">{pub.round.title}</p>
               {view?.round?.framing && (
@@ -239,6 +243,9 @@ export default function PlayPage() {
                 </div>
               </div>
             </div>
+            {pub.siege?.revealed && (
+              <SiegeBoard pub={pub.siege} mine={view?.siege ?? null} code={code} onChange={refetch} />
+            )}
             {view?.insider && (
               <InsiderPanel insider={view.insider} code={code} active onActed={refetch} />
             )}

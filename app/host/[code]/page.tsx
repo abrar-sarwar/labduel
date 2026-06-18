@@ -16,6 +16,7 @@ import {
   CompanyDamageMeter,
 } from "@/components/panels";
 import { OverrideConsole } from "@/components/override";
+import { SiegeBoard } from "@/components/siege";
 import { Button, Toggle } from "@/components/ui";
 import { Win, StatusPill } from "@/components/console";
 import type { Phase, PublicState } from "@/lib/shared/types";
@@ -270,6 +271,10 @@ export default function HostPage() {
                   <CoinFlip initiative={pub.round.initiative} round={pub.round.number} bonus={pub.round.bonus} />
                 </Win>
               )}
+              {pub.siege &&
+                (pub.phase === "roundBriefing" || pub.phase === "active" || pub.phase === "submissionLock") && (
+                  <SiegeBoard pub={pub.siege} mine={null} code={code} onChange={() => {}} />
+                )}
               {(pub.phase === "roundBriefing" || pub.phase === "active" || pub.phase === "submissionLock") &&
                 pub.round && <MissionBrief round={pub.round} />}
 

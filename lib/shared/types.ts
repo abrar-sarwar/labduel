@@ -113,6 +113,17 @@ export interface RoundRuntime {
   roundScore: { red: number; blue: number };
   /** SERVER ONLY, whether the Insider chose to sabotage this round. */
   insiderSabotaged: boolean;
+  /** Siege board state for this round. */
+  siege: RoundSiege;
+}
+
+export interface RoundSiege {
+  /** Lane Red commits to attack (set during briefing). */
+  attackLane: string | null;
+  /** Lanes Blue commits to defend. */
+  defendedLanes: string[];
+  revealed: boolean;
+  outcome: "breach" | "parry" | null;
 }
 
 export interface AuditEntry {
@@ -146,6 +157,10 @@ export interface GameState {
   economy: Economy;
   /** Company breach meter (0-100). 100 = full breach → Red wins. */
   companyDamage: number;
+  /** How many lanes Blue may defend on the siege board (grows via the shop). */
+  blueDefenseSlots: number;
+  /** Extra company damage Red deals on a breach (grows via the shop). */
+  redBreachBonus: number;
   /** Server-stored deadline for the current timed phase (epoch ms). */
   phaseDeadline: number | null;
   audit: AuditEntry[];
@@ -212,6 +227,20 @@ export interface PublicFinal {
   breach: { companyDamage: number; breached: boolean };
 }
 
+/**
+ * Siege board, public. Pre-reveal, only commit PROGRESS is shown (never which
+ * lanes), so the matchup stays a mind-game until the round starts.
+ */
+export interface PublicSiege {
+  revealed: boolean;
+  defenseSlots: number;
+  redCommitted: boolean;
+  blueDefendedCount: number;
+  attackLane: string | null;
+  defendedLanes: string[];
+  outcome: "breach" | "parry" | null;
+}
+
 export interface PublicState {
   code: string;
   phase: Phase;
@@ -231,6 +260,8 @@ export interface PublicState {
   round: PublicRound | null;
   debrief: PublicDebrief | null;
   final: PublicFinal | null;
+  /** Siege board state, null outside of round phases. */
+  siege: PublicSiege | null;
   /** Deadline for the current timed phase (e.g. the Shop discussion timer). */
   phaseDeadline: number | null;
   playerCount: number;
@@ -295,6 +326,21 @@ export interface PlayerView {
   debrief: PublicDebrief | null;
   /** Non-null ONLY for the insider. */
   insider: InsiderView | null;
+  /** This player's team-only siege view (own commit + leader controls). */
+  siege: PlayerSiege | null;
+}
+
+export interface PlayerSiege {
+  team: Team;
+  isLeader: boolean;
+  defenseSlots: number;
+  /** Your own team's commit (visible to your team only, pre-reveal). */
+  myAttack: string | null; // red
+  myDefense: string[]; // blue
+  revealed: boolean;
+  outcome: "breach" | "parry" | null;
+  attackLane: string | null; // populated on reveal
+  defendedLanes: string[]; // populated on reveal
 }
 
 /** Host-only moderation payload (returned only to the authenticated host). */

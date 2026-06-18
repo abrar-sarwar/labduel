@@ -39,6 +39,8 @@ export function createGameState(params: CreateGameParams): GameState {
     scores: { red: 0, blue: 0 },
     economy: STARTING_ECONOMY(),
     companyDamage: 0,
+    blueDefenseSlots: 2,
+    redBreachBonus: 0,
     phaseDeadline: null,
     audit: [],
     rev: 1,
